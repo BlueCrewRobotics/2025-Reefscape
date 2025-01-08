@@ -29,6 +29,8 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import edu.wpi.first.math.numbers.N1;
@@ -44,6 +46,8 @@ import static frc.robot.Constants.PhotonVision.*;
 public class VisionPoseEstimator {
     private final PhotonCamera camera;
     private final PhotonPoseEstimator photonEstimator;
+    private List<PhotonPipelineResult> unreadResults = new ArrayList<>();
+    private PhotonPipelineResult latestResult = null;
     private double lastEstTimestamp = 0;
 
     public VisionPoseEstimator() {
@@ -51,12 +55,18 @@ public class VisionPoseEstimator {
 
         photonEstimator =
                 new PhotonPoseEstimator(
-                        tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, robotToCam);
+                        tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCam);
         photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
 
-    public PhotonPipelineResult getLatestResult() {
-        return camera.getLatestResult();
+    public void getLatestResult() {
+        this.unreadResults = camera.getAllUnreadResults();
+
+        if (!unreadResults.isEmpty()) {
+            latestResult = unreadResults.get(unreadResults.size() - 1);
+        } else {
+            latestResult = null;
+        }
     }
 
     /**
@@ -67,8 +77,9 @@ public class VisionPoseEstimator {
      *     used for estimation.
      */
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-        var visionEst = photonEstimator.update();
-        double latestTimestamp = camera.getLatestResult().getTimestampSeconds();
+        getLatestResult();
+        var visionEst = photonEstimator.update(latestResult);
+        double latestTimestamp = latestResult.getTimestampSeconds();
         boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
         if (newResult) lastEstTimestamp = latestTimestamp;
         return visionEst;
@@ -83,7 +94,7 @@ public class VisionPoseEstimator {
      */
     public Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) {
         var estStdDevs = singleTagStdDevs;
-        var targets = getLatestResult().getTargets();
+        var targets = latestResult.getTargets();
         int numTags = 0;
         double avgDist = 0;
         for (var tgt : targets) {

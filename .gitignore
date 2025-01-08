@@ -1,4 +1,7 @@
 .gradle
 .wpilib
+.vscode
+.idea
+.SysId
 bin
 build

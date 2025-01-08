@@ -10,6 +10,8 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.Units;
 import frc.lib.math.Conversions;
 import frc.lib.util.SwerveModuleConstants;
 import frc.robot.Constants;
@@ -93,7 +95,7 @@ public class SwerveModule {
      * @return The angle of the {@link CANcoder}
      */
     public Rotation2d getCANcoder(){
-        return Rotation2d.fromRotations(angleEncoder.getAbsolutePosition().getValue());
+        return Rotation2d.fromRotations(angleEncoder.getAbsolutePosition().getValue().in(Units.Rotations));
     }
 
     /**
@@ -109,18 +111,19 @@ public class SwerveModule {
      */
     public SwerveModuleState getState(){
         return new SwerveModuleState(
-            Conversions.RPSToMPS(mDriveMotor.getVelocity().getValue(), Constants.Swerve.wheelCircumference), 
-            Rotation2d.fromRotations(mAngleMotor.getPosition().getValue())
+            Conversions.RPSToMPS(mDriveMotor.getVelocity().getValue().in(Units.RotationsPerSecond), Constants.Swerve.wheelCircumference),
+            Rotation2d.fromRotations(mAngleMotor.getPosition().getValue().in(Units.Rotations))
         );
     }
+
 
     /**
      * @return The {@link SwerveModulePosition} of the {@link SwerveModule}
      */
     public SwerveModulePosition getPosition(){
         return new SwerveModulePosition(
-            Conversions.rotationsToMeters(mDriveMotor.getPosition().getValue(), Constants.Swerve.wheelCircumference), 
-            Rotation2d.fromRotations(mAngleMotor.getPosition().getValue())
+            Conversions.rotationsToMeters(mDriveMotor.getPosition().getValue().in(Units.Rotations), Constants.Swerve.wheelCircumference),
+            Rotation2d.fromRotations(mAngleMotor.getPosition().getValue().in(Units.Rotations))
         );
     }
 }

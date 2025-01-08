@@ -4,9 +4,9 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -19,6 +19,9 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import frc.lib.util.COTSTalonFXSwerveConstants;
 import frc.lib.util.SwerveModuleConstants;
+import org.json.simple.parser.ParseException;
+
+import java.io.IOException;
 
 /**
  * Contains all the robot constants
@@ -61,14 +64,14 @@ public final class Constants {
         public static final SensorDirectionValue cancoderInvert = chosenModule.cancoderInvert;
 
         /* Swerve Current Limiting */
-        public static final int angleCurrentLimit = 25;
-        public static final int angleCurrentThreshold = 40;
-        public static final double angleCurrentThresholdTime = 0.1;
+        public static final int angleCurrentLowerLimit = 25;
+        public static final int angleCurrentLimit = 40;
+        public static final double angleCurrentLowerTime = 0.1;
         public static final boolean angleEnableCurrentLimit = true;
 
-        public static final int driveCurrentLimit = 35;
-        public static final int driveCurrentThreshold = 60;
-        public static final double driveCurrentThresholdTime = 0.1;
+        public static final int driveCurrentLowerLimit = 35;
+        public static final int driveCurrentLimit = 60;
+        public static final double driveCurrentLowerTime = 0.1;
         public static final boolean driveEnableCurrentLimit = true;
 
         /* These values are used by the drive falcon to ramp in open loop and closed loop driving.
@@ -151,7 +154,7 @@ public final class Constants {
 
         // The layout of the AprilTags on the field
         public static final AprilTagFieldLayout tagLayout =
-                AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+                AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
         // The standard deviations of our vision estimated poses, which affect correction rate
         // (Fake values. Experiment and determine estimation noise on an actual robot.)
@@ -163,14 +166,22 @@ public final class Constants {
      * Contains all the Constants used by Path Planner
      */
     public static final class PathPlannerConstants {
-        public static final HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
-                new PIDConstants(5.0, 0, 0), // Translation PID
-                new PIDConstants(5.0, 0, 0), // Rotation PID
-                4.8, // Max Speed Meters per second
-                Math.sqrt((0.5 * Swerve.trackWidth) * (0.5 * Swerve.trackWidth) *
-                        (0.5 * Swerve.wheelBase) * (0.5 * Swerve.wheelBase)), // Drive base radius in meters. Distance from robot center to furthest module.
-                new ReplanningConfig()
+        public static final PPHolonomicDriveController driveController = new PPHolonomicDriveController(
+                new PIDConstants(5.0, 0.0, 0.0), // Translation PID
+                new PIDConstants(5.0, 0, 0) // Rotation PID
         );
+
+        public static final RobotConfig robotConfig;
+
+        static {
+            try {
+                robotConfig = RobotConfig.fromGUISettings();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public static final class AutoConstants { //TODO: The below constants are used in the example auto, and must be tuned to specific robot
