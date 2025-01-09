@@ -1,6 +1,6 @@
 package frc.robot.subsystems;
 
-import com.kauailabs.navx.frc.AHRS;
+import com.studica.frc.AHRS;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -9,7 +9,6 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Constants;
@@ -43,7 +42,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private PIDController rotationPIDController;
 
     public SwerveSubsystem() {
-        gyro = new AHRS(SPI.Port.kMXP);
+        gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
         gyro.reset();
 
         swerveMods = new SwerveModule[] {
@@ -73,12 +72,13 @@ public class SwerveSubsystem extends SubsystemBase {
         rotationPIDController.setTolerance(1);
 
         // Configure PathPlanner Auto Builder
-        AutoBuilder.configureHolonomic(
+        AutoBuilder.configure(
                 this::getPose,
                 this::setPose,
                 this::getRobotRelativeSpeeds,
-                this::driveRobotRelative,
-                Constants.PathPlannerConstants.pathFollowerConfig,
+                (speeds, feedforwards) -> driveRobotRelative(speeds),
+                Constants.PathPlannerConstants.driveController,
+                Constants.PathPlannerConstants.robotConfig,
                 () -> {
                     // Boolean supplier that controls when the path will be mirrored for the red alliance
                     // This will flip the path being followed to the red side of the field.
