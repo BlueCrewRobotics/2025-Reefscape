@@ -209,7 +209,9 @@ public final class Constants {
     public static final double shooterKV = 2.2341;
     public static final double shooterKA = 0.27385;
 
-    public static final int INTAKE_MOTOR_ID = 99999; // TODO: Placeholder
+    public static final int INTAKE_MOTOR_ID= 99;
+
+    public static final int INDEXER_MOTOR_ID = 99999; // TODO: Placeholder
     public static final int INDEXER_MOTOR_ID = 8888;
     public static final double  INDEXER_MAX_LIMIT = 129834.42;
     public static final double INDEXER_MIN_LIMIT = -398472938.23;
