@@ -31,11 +31,14 @@ import java.util.List;
 public class RobotContainer {
     /* Controllers */
     private final CommandXboxController driver = new CommandXboxController(0);
+    private final CommandXboxController auxDriver = new CommandXboxController(1);
 
     /* Drive Controls */
     private final int translationAxis = XboxController.Axis.kLeftY.value;
     private final int strafeAxis = XboxController.Axis.kLeftX.value;
     private final int rotationAxis = XboxController.Axis.kRightX.value;
+
+    /*Aux Controls */
 
     /* Driver Buttons */
     private final JoystickButton zeroGyro = new JoystickButton(driver.getHID(), XboxController.Button.kY.value);
@@ -45,6 +48,8 @@ public class RobotContainer {
 
     /* Subsystems */
     private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+    private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+    private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
     // Sendable Choosers
     private final SendableChooser<Command> autoChooser;
@@ -66,6 +71,10 @@ public class RobotContainer {
 
         // Configure the button bindings
         configureButtonBindings();
+        //elevatorSubsystem.setDefaultCommand(() -> elevatorSubsystem.driveByJoystick(auxDriver.getRightY));
+        elevatorSubsystem.spinMotor(auxDriver.getRightY());
+        auxDriver.a().onTrue(elevatorSubsystem.stopElevator());
+        auxDriver.b().whileTrue(intakeSubsystem.intakeAlgae());
 
         // PathPlanner command templates
         NamedCommands.registerCommand("marker1", Commands.print("Passed marker 1"));
