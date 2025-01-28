@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -24,9 +26,11 @@ public class WristSubsystem extends SubsystemBase {
     wristConfig.CurrentLimits.SupplyCurrentLowerLimit = 35;
     wristConfig.CurrentLimits.SupplyCurrentLowerTime = .01;
     wristConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     wristMotor.getConfigurator().apply(wristConfig);
     wristMotor.clearStickyFaults();
+
   }
 
   public void setWristPosition(double position){
