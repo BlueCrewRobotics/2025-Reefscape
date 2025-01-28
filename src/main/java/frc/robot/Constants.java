@@ -203,9 +203,14 @@ public final class Constants {
     public static final int ELEVATOR_MOTOR_LEFT_ID = 20;
     public static final int ELEVATOR_MOTOR_RIGHT_ID = 23;
 
+    public static final int ELEVATOR_LOWER_LIMIT = 888888; //TODO: Placeholder
+    public static final int ELEVATOR_UPPER_LIMIT = -68543; //TODO: Placeholder 
+
 
     public static final int INTAKE_MOTOR_ID = 99999; // TODO: Placeholder
     public static final int WRIST_MOTOR_ID = 9999;
+    public static final int WRIST_UPPER_LIMIT = 323232323;
+    public static final int WRIST_LOWER_LIMIT = 3444444;
 
 
     //TODO: These are from last year

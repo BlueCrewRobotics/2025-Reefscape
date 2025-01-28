@@ -333,24 +333,24 @@ public class SwerveSubsystem extends SubsystemBase {
     public void periodic(){
         swervePoseEstimator.update(getGyroYaw(), getModulePositions());
 
-        // Correct pose estimate with vision measurements
-        var visionEst = vision.getEstimatedGlobalPose();
-        visionEst.ifPresent(
-                est -> {
-                    var estPose = est.estimatedPose.toPose2d();
-                    // Change our trust in the measurement based on the tags we can see
-                    var estStdDevs = vision.getEstimationStdDevs(estPose);
+        // // Correct pose estimate with vision measurements
+        // var visionEst = vision.getEstimatedGlobalPose();
+        // visionEst.ifPresent(
+        //         est -> {
+        //             var estPose = est.estimatedPose.toPose2d();
+        //             // Change our trust in the measurement based on the tags we can see
+        //             var estStdDevs = vision.getEstimationStdDevs(estPose);
 
-                    swervePoseEstimator.addVisionMeasurement(
-                            est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-                });
+        //             swervePoseEstimator.addVisionMeasurement(
+        //                     est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+        //         });
 
         SmartDashboard.putNumber("Swerve Estimator X", swervePoseEstimator.getEstimatedPosition().getX());
         SmartDashboard.putNumber("Swerve Estimator Y", swervePoseEstimator.getEstimatedPosition().getY());
-        if(visionEst.isPresent()) {
-            SmartDashboard.putNumber("Vision Estimator X", visionEst.get().estimatedPose.getX());
-            SmartDashboard.putNumber("Vision Estimator Y", visionEst.get().estimatedPose.getY());
-        }
+        // if(visionEst.isPresent()) {
+        //     SmartDashboard.putNumber("Vision Estimator X", visionEst.get().estimatedPose.getX());
+        //     SmartDashboard.putNumber("Vision Estimator Y", visionEst.get().estimatedPose.getY());
+        // }
 
         for(SwerveModule mod : swerveMods) {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Integrated", mod.getPosition().angle.getDegrees());
