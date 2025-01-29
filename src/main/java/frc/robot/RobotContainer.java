@@ -72,9 +72,13 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
         //elevatorSubsystem.setDefaultCommand(() -> elevatorSubsystem.driveByJoystick(auxDriver.getRightY));
-        elevatorSubsystem.spinMotor(auxDriver.getRightY());
+       
+        //attaching commands to aux controller for testing 
+        auxDriver.x().onTrue(elevatorSubsystem.goDown(.25));
+        auxDriver.y().onTrue(elevatorSubsystem.goUp(.25));
         auxDriver.a().onTrue(elevatorSubsystem.stopElevator());
         auxDriver.b().whileTrue(intakeSubsystem.intakeAlgae());
+        auxDriver.b().onFalse(intakeSubsystem.stopIntake());
 
         // PathPlanner command templates
         NamedCommands.registerCommand("marker1", Commands.print("Passed marker 1"));

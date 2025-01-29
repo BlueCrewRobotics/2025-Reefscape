@@ -35,12 +35,16 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public Command intakeAlgae() {
     return new InstantCommand(
-      () -> spinMotor(70), this
+      () -> spinMotor(.3), this
     );
   }
 
+  public Command stopIntake() {
+    return new InstantCommand(() -> stopMotor(), this);
+  }
+
   public Command throwAlgae() {
-    return new InstantCommand(()->spinMotor(-70), this);
+    return new InstantCommand(()->spinMotor(-.3), this);
   }
 
   @Override
