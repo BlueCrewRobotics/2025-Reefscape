@@ -21,7 +21,6 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeConfig.CurrentLimits.SupplyCurrentLowerLimit = 35;
     intakeConfig.CurrentLimits.SupplyCurrentLowerTime = .1;
     intakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-
     intakeMotor.clearStickyFaults();
   }
 
@@ -34,8 +33,8 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public Command intakeAlgae() {
-    return new InstantCommand(
-      () -> spinMotor(.3), this
+    return this.run(
+      () -> spinMotor(.3)
     );
   }
 
