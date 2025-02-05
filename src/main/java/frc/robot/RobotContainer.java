@@ -50,6 +50,7 @@ public class RobotContainer {
     private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
     private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    private final WristSubsystem wristSubsystem = new WristSubsystem();
 
     // Sendable Choosers
     private final SendableChooser<Command> autoChooser;
@@ -71,15 +72,23 @@ public class RobotContainer {
 
         // Configure the button bindings
         configureButtonBindings();
-        //elevatorSubsystem.setDefaultCommand(() -> elevatorSubsystem.driveByJoystick(auxDriver.getRightY));
+       elevatorSubsystem.setDefaultCommand(elevatorSubsystem.run(()->elevatorSubsystem.driveByJoystick(auxDriver::getRightY)));
+       wristSubsystem.setDefaultCommand(wristSubsystem.run(()->wristSubsystem.spinByJoystick(auxDriver::getLeftY)));
        
         //attaching commands to aux controller for testing 
-        auxDriver.x().onTrue(elevatorSubsystem.goDown(.25));
-        auxDriver.y().onTrue(elevatorSubsystem.goUp(.25));
-        auxDriver.a().onTrue(elevatorSubsystem.stopElevator());
+        
+        // auxDriver.x().onTrue(wristSubsystem.spinWrist(.2));
+        // auxDriver.x().onFalse(wristSubsystem.stopWrist());
+        //auxDriver.a().onTrue(elevatorSubsystem.setCurrentPositionHold());
+        //auxDriver.a().onTrue(elevatorSubsystem.stopElevator());
         auxDriver.b().whileTrue(intakeSubsystem.intakeAlgae());
         auxDriver.b().onFalse(intakeSubsystem.stopIntake());
+        auxDriver.y().whileTrue(intakeSubsystem.throwAlgae());
+        auxDriver.y().onFalse(intakeSubsystem.stopIntake());
 
+        driver.a().onTrue(elevatorSubsystem.run(()->elevatorSubsystem.L2Reef()));
+    
+       // auxDriver.povLeft().onTrue(elevatorSubsystem.L2Reef());
         // PathPlanner command templates
         NamedCommands.registerCommand("marker1", Commands.print("Passed marker 1"));
         NamedCommands.registerCommand("marker2", Commands.print("Passed marker 2"));

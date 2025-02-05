@@ -4,10 +4,15 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -37,12 +42,29 @@ public class WristSubsystem extends SubsystemBase {
     wristMotor.setPosition(position);
   }
 
-  public void spinWrist(double speed){
+  public void spinWristMotor(double speed){
     wristMotor.set(speed);
   }
 
-  public void stopWrist(){
+  public void stopWristMotor(){
     wristMotor.stopMotor();
+  }
+
+  public void spinByJoystick(DoubleSupplier amount) {
+    double spinAmount = MathUtil.applyDeadband(amount.getAsDouble(), .1);
+    spinWristMotor(spinAmount);
+  }
+
+  public Command setWrist(double position) {
+    return new InstantCommand(()->setWristPosition(position),this);
+  }
+
+  public Command spinWrist(double speed) {
+    return new InstantCommand(()->spinWrist(speed), this);
+  }
+
+  public Command stopWrist() {
+    return new InstantCommand(()-> stopWristMotor(), this);
   }
 
   @Override
