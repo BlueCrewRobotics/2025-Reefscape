@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -19,6 +21,8 @@ import frc.robot.Constants;
 public class WristSubsystem extends SubsystemBase {
   private TalonFX wristMotor = new TalonFX(Constants.WRIST_MOTOR_ID);
   private TalonFXConfiguration wristConfig = new TalonFXConfiguration();
+  private VelocityVoltage wristVelocityVoltage = new VelocityVoltage(0);
+  private PositionVoltage wristPositionVoltage = new PositionVoltage(0);
 
   /** Creates a new WristModule. */
   public WristSubsystem() {
@@ -35,11 +39,6 @@ public class WristSubsystem extends SubsystemBase {
 
     wristMotor.getConfigurator().apply(wristConfig);
     wristMotor.clearStickyFaults();
-
-  }
-
-  public void setWristPosition(double position){
-    wristMotor.setPosition(position);
   }
 
   public void spinWristMotor(double speed){
@@ -50,13 +49,36 @@ public class WristSubsystem extends SubsystemBase {
     wristMotor.stopMotor();
   }
 
-  public void spinByJoystick(DoubleSupplier amount) {
-    double spinAmount = MathUtil.applyDeadband(amount.getAsDouble(), .1);
-    spinWristMotor(spinAmount);
+  public void updatePosition(){
+    wristPositionVoltage.Position = wristMotor.getPosition().getValueAsDouble();
   }
 
-  public Command setWrist(double position) {
-    return new InstantCommand(()->setWristPosition(position),this);
+  public void spinByJoystick(DoubleSupplier amount) {
+    double spinAmount = MathUtil.applyDeadband(amount.getAsDouble(), .1);
+    if(spinAmount>.1||spinAmount<-.01){
+      wristPositionVoltage.FeedForward = spinAmount*Constants.WRIST_MAX_ROTATIONS_PER_SEC;
+      wristMotor.setControl(wristPositionVoltage);
+    }
+  }
+
+  public void wristToIntake(){
+    wristMotor.setControl(wristPositionVoltage);
+    wristPositionVoltage.Position = Constants.WRIST_INTAKE_POSITION;
+  }
+
+  public void wristToL1(){
+    wristMotor.setControl(wristPositionVoltage);
+    wristPositionVoltage.Position = Constants.WRIST_L1_POSITION;
+  }
+
+  public void wristToLMID(){
+    wristMotor.setControl(wristPositionVoltage);
+    wristPositionVoltage.Position = Constants.WRIST_LMID_POSITION;
+  }
+
+  public void wristToL4(){
+    wristMotor.setControl(wristPositionVoltage);
+    wristPositionVoltage.Position = Constants.WRIST_L4_POSITION;
   }
 
   public Command spinWrist(double speed) {
@@ -70,5 +92,8 @@ public class WristSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    // updatePosition();
+    // wristMotor.setControl(wristPositionVoltage);
   }
 }

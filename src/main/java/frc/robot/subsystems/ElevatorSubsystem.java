@@ -11,7 +11,9 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 
@@ -28,6 +30,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private boolean enableSetPosition = true;
   private double elevatorSetPosition;
   private PositionVoltage elevatorPositionVoltage = new PositionVoltage(0);
+  private VelocityVoltage elevatorVelocityVoltage = new VelocityVoltage(0);
   private TalonFXConfiguration climberConfig = new TalonFXConfiguration();
 
   /** Creates a new Elevator. */
@@ -58,6 +61,7 @@ climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     climberConfig.Slot1.kD = 0.0;
     climberConfig.Slot1.kG = 0.25;
     climberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    climberConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     motor1.getConfigurator().apply(climberConfig);
     motor2.getConfigurator().apply(climberConfig);
@@ -100,37 +104,27 @@ climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
   }
 
   public void driveByJoystick(DoubleSupplier amount) {
-    //if(amount.getAsDouble()>.1){
+    if(amount.getAsDouble()>.1 || amount.getAsDouble()<-.1){
     double amountSpin = MathUtil.applyDeadband(amount.getAsDouble(), .1);
-    //spinMotor(amountSpin);
+    elevatorVelocityVoltage.Velocity = amountSpin*Constants.ELEVATOR_MAX_ROTATIONS_PER_SEC;
+    motor1.setControl(elevatorVelocityVoltage);
     enableSetPosition = false;
-    // }
-    // else {
-    //   elevatorPositionVoltage.Position = motor1.getPosition().getValueAsDouble();
-    //   enableSetPosition = true;
-    // }
-    elevatorPositionVoltage.Position = motor1.getPosition().getValueAsDouble()+(MathUtil.applyDeadband(amountSpin, .1)*1);
+    }
+    else {
+       enableSetPosition = true;
+    }
   }
 
-  // public Command setCurrentPositionHold() {
-  //   enableSetPosition = true;
-  //   elevatorSetPosition = motor1.getPosition().getValueAsDouble();
-  //   return new InstantCommand(()-> motor1.setPosition(elevatorSetPosition));
-  // }
-
-  // public Command L2Reef() {
-  //   return new InstantCommand(()->setHoldPosition(Constants.L2REEFPOSITION));
-  // }
   public void L2Reef() {
+    motor1.setControl(elevatorPositionVoltage);
     elevatorPositionVoltage.Position = Constants.L2REEFPOSITION;
+    enableSetPosition = false;
   }
   
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    // if (enableSetPosition) {
-    //   motor1.setControl(elevatorPositionVoltage);
-    // }
-      motor1.setControl(elevatorPositionVoltage);
+    //untested 
+    setPosition();
+    if(enableSetPosition){motor1.setControl(elevatorPositionVoltage);}
   }
 }
