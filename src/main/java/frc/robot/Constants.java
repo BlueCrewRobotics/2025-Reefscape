@@ -205,13 +205,19 @@ public final class Constants {
 
     public static final double ELEVATOR_LOWER_LIMIT = -43.548340; //TODO: Placeholder
     public static final double ELEVATOR_UPPER_LIMIT = -0.191895; //TODO: Placeholder 
-    // public static final double ELEVATOR_LOWER_LIMIT = -0.191895; //TODO: Placeholder
-    // public static final double ELEVATOR_UPPER_LIMIT = -43.548340; 
+    public static final double ELEVATOR_MAX_ROTATIONS_PER_SEC = 100;
 
     public static final int INTAKE_MOTOR_ID = 8; 
+
+
     public static final int WRIST_MOTOR_ID = 9;
     public static final double WRIST_UPPER_LIMIT = 0.376953; 
     public static final double WRIST_LOWER_LIMIT = -0.607422;
+    public static final double WRIST_MAX_ROTATIONS_PER_SEC = 100;
+    public static final double WRIST_INTAKE_POSITION = 99999;
+    public static final double WRIST_L1_POSITION = 999999;
+    public static final double WRIST_LMID_POSITION = 99999;
+    public static final double WRIST_L4_POSITION = 99999;
 
 
     //TODO: set position need to be set 
@@ -222,23 +228,5 @@ public final class Constants {
     public static final double LOWCAGE = 999;
     public static final double PROCESSOR = 9;
     public static final double CORALSTATION = 99;
-
-    public static final double GAME_PIECE_NOTE_DIAMETER = 0.36;
-
-
-    public static final double FIELD_AMP_OPENING_WIDTH = 0.6096;
-    public static final double FIELD_AMP_OPENING_HEIGHT = 0.4572;
-    public static final double FIELD_AMP_OPENING_HEIGHT_FROM_FLOOR = 0.6604;
-    public static final double FIELD_AMP_APRIL_TAG_HEIGHT_TO_CENTER = 1.3557;
-
-    public static final double FIELD_SPEAKER_OPENING_HEIGHT_FROM_FLOOR = 1.9812;
-    public static final double FIELD_SPEAKER_OPENING_WIDTH = 1.0509;
-    //public static final double FIELD_SPEAKER_OPENING_HEIGHT_AT_CENTER = ;
-    public static final double FIELD_SPEAKER_OPENING_OVERHANG = 0.4572;
-    public static final double FIELD_SPEAKER_APRIL_TAG_HEIGHT_OF_BOTTOM = 1.3574;
-    public static final double FIELD_SPEAKER_APRIL_TAG_OFFSET_DISTANCE = 0.5668;
-
-    public static final double FIELD_SOURCE_APRIL_TAG_HEIGHT_BOTTOM = 1.2224;
-    public static final double FIELD_SOURCE_APRIL_TAG_DISTANCE_BETWEEN = 0.98425 + 0.2667;
 
 }
