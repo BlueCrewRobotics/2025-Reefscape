@@ -80,13 +80,18 @@ public class RobotContainer {
         // auxDriver.x().onTrue(wristSubsystem.spinWrist(.2));
         // auxDriver.x().onFalse(wristSubsystem.stopWrist());
         //auxDriver.a().onTrue(elevatorSubsystem.setCurrentPositionHold());
-        //auxDriver.a().onTrue(elevatorSubsystem.stopElevator());
-        auxDriver.b().whileTrue(intakeSubsystem.intakeAlgae());
-        auxDriver.b().onFalse(intakeSubsystem.stopIntake());
-        auxDriver.y().whileTrue(intakeSubsystem.throwAlgae());
-        auxDriver.y().onFalse(intakeSubsystem.stopIntake());
+        auxDriver.a().onTrue(elevatorSubsystem.stopElevator());
+        auxDriver.x().onTrue(wristSubsystem.stopWrist());
 
-        driver.a().onTrue(elevatorSubsystem.run(()->elevatorSubsystem.L2Reef()));
+        auxDriver.rightBumper().whileTrue(intakeSubsystem.intakeCoral());
+        auxDriver.rightBumper().onFalse(intakeSubsystem.stopIntake());
+        auxDriver.leftBumper().whileTrue(intakeSubsystem.intakeAlgae());
+        auxDriver.leftTrigger().onTrue(intakeSubsystem.stopIntake());
+
+        driver.a().onTrue(elevatorSubsystem.run(()->elevatorSubsystem.intakeCoral()));
+        driver.b().onTrue(wristSubsystem.run(()->wristSubsystem.wristToBarge()));
+        driver.y().onTrue(wristSubsystem.run(()->wristSubsystem.wristToIntake()));
+        auxDriver.leftBumper().onTrue(elevatorSubsystem.run(()->elevatorSubsystem.addPosition(auxDriver)));
     
        // auxDriver.povLeft().onTrue(elevatorSubsystem.L2Reef());
         // PathPlanner command templates

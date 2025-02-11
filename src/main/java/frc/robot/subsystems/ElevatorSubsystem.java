@@ -7,12 +7,15 @@ package frc.robot.subsystems;
 import java.util.ResourceBundle.Control;
 import java.util.function.DoubleSupplier;
 
+import javax.swing.text.Position;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.ControlModeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
@@ -22,6 +25,7 @@ import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 
 public class ElevatorSubsystem extends SubsystemBase {
@@ -32,6 +36,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private PositionVoltage elevatorPositionVoltage = new PositionVoltage(0);
   private VelocityVoltage elevatorVelocityVoltage = new VelocityVoltage(0);
   private TalonFXConfiguration climberConfig = new TalonFXConfiguration();
+  private CommandXboxController driver;
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
@@ -74,6 +79,8 @@ climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
 
   public void stopMotor() {
     motor1.stopMotor();
+    //motor1.setControl(elevatorVelocityVoltage);
+    enableSetPosition = false;
   }
 
   //beginning to try to figure out how to get the elevator to stop in a specific spot
@@ -88,7 +95,12 @@ climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
   }
 
   public void setPosition(){
-    elevatorPositionVoltage.Position = motor1.getPosition().getValueAsDouble();
+    elevatorPositionVoltage.Position = motor1.getRotorPosition().getValueAsDouble();
+    motor1.setControl(elevatorPositionVoltage);
+  }
+
+  public double getPosition(){
+    return motor1.getPosition().getValueAsDouble();
   }
 
   public Command goUp(double speed) {
@@ -109,22 +121,57 @@ climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     elevatorVelocityVoltage.Velocity = amountSpin*Constants.ELEVATOR_MAX_ROTATIONS_PER_SEC;
     motor1.setControl(elevatorVelocityVoltage);
     enableSetPosition = false;
+    elevatorSetPosition = getPosition();
     }
     else {
-       enableSetPosition = true;
+    enableSetPosition = true;
+    }
+  }
+
+  public void addPosition(CommandXboxController driver){
+    this.driver = driver;
+    if(driver.povUp().getAsBoolean()){
+    elevatorPositionVoltage.Position += 1;
+    motor1.setControl(elevatorPositionVoltage);
     }
   }
 
   public void L2Reef() {
-    motor1.setControl(elevatorPositionVoltage);
     elevatorPositionVoltage.Position = Constants.L2REEFPOSITION;
-    enableSetPosition = false;
+    motor1.setControl(elevatorPositionVoltage);
+    enableSetPosition = true;
+    elevatorSetPosition = Constants.L2REEFPOSITION;
+  }
+
+  public void intakeCoral(){
+    elevatorPositionVoltage.Position = Constants.CORALSTATION;
+    motor1.setControl(elevatorPositionVoltage);
+    enableSetPosition = true;
+    elevatorSetPosition = Constants.CORALSTATION;
+  }
+
+  public void returnHome(){
+    elevatorPositionVoltage.Position = Constants.ELEVATOR_LOWER_LIMIT;
   }
   
   @Override
   public void periodic() {
-    //untested 
-    setPosition();
-    if(enableSetPosition){motor1.setControl(elevatorPositionVoltage);}
+      // if (elevatorSetPosition > getPosition()) {
+      //   elevatorPositionVoltage.Velocity = .2;
+      //   motor1.setControl(elevatorPositionVoltage);
+      // }
+      // else if (elevatorSetPosition < getPosition()) {
+      //   elevatorPositionVoltage.Velocity = -.2;
+      //   motor1.setControl(elevatorPositionVoltage);
+      // }
+    // }
+    // if(!enableSetPosition){
+    //   if (elevatorSetPosition > getPosition()) {
+    //     elevatorVelocityVoltage.Velocity = -.1;
+    //   }
+    //   else if (elevatorSetPosition < getPosition()) {
+    //     elevatorVelocityVoltage.Velocity = .1;
+    //   }
+    // }
   }
 }

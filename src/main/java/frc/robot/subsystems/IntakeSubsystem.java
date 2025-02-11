@@ -42,7 +42,7 @@ public class IntakeSubsystem extends SubsystemBase {
     return new InstantCommand(() -> stopMotor(), this);
   }
 
-  public Command throwAlgae() {
+  public Command intakeCoral() {
     return new InstantCommand(()->spinMotor(-.3), this);
   }
 
