@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -43,6 +44,12 @@ public class WristSubsystem extends SubsystemBase {
     wristConfig.Slot0.kP = 0.3;
     wristConfig.Slot0.kI = .005;
     wristConfig.Slot0.kD = 0.0;
+    wristConfig.Slot0.kG = .3;
+
+    wristConfig.Slot1.kP =0.0;
+    wristConfig.Slot1.kI = 0.0;
+    wristConfig.Slot1.kD = 0.0;
+    wristConfig.Slot1.kG = .3;
 
     wristMotor.getConfigurator().apply(wristConfig);
     wristMotor.clearStickyFaults();
@@ -69,38 +76,31 @@ public class WristSubsystem extends SubsystemBase {
     if(spinAmount>.1||spinAmount<-.01){
       wristVelocityVoltage.Velocity = spinAmount*Constants.WRIST_MAX_ROTATIONS_PER_SEC;
       wristMotor.setControl(wristVelocityVoltage);
-      wristSetPosition = wristMotor.getPosition().getValueAsDouble();
+      wristSetPosition = getWristPosition();
+    }
+    else {
+      wristMotor.setControl(wristPositionVoltage.withPosition(wristSetPosition).withSlot(0));
     }
   }
 
-  public void wristToIntake(){
-    wristPositionVoltage.Position = Constants.WRIST_INTAKE_POSITION;
-    wristMotor.setControl(wristPositionVoltage);
-    wristSetPosition = Constants.WRIST_INTAKE_POSITION;
+  public Command wristToIntake(){
+    return this.run(() -> wristSetPosition = Constants.WRIST_INTAKE_POSITION);
   }
 
-  public void wristToL1(){
-    wristPositionVoltage.Position = Constants.WRIST_L1_POSITION;
-    wristMotor.setControl(wristPositionVoltage);
-    wristSetPosition = Constants.WRIST_L1_POSITION;
+  public Command wristToL1(){
+    return this.run(() -> wristSetPosition = Constants.WRIST_L1_POSITION);
   }
 
-  public void wristToLMID(){
-    wristPositionVoltage.Position = Constants.WRIST_LMID_POSITION;
-    wristMotor.setControl(wristPositionVoltage);
-    wristSetPosition = Constants.WRIST_LMID_POSITION;
+  public Command wristToLMID(){
+    return this.run(() -> wristSetPosition = Constants.WRIST_LMID_POSITION);
   }
 
-  public void wristToL4(){
-    wristPositionVoltage.Position = Constants.WRIST_L4_POSITION;
-    wristMotor.setControl(wristPositionVoltage);
-    wristSetPosition = Constants.WRIST_L4_POSITION;
+  public Command wristToL4(){
+    return this.run(() -> wristSetPosition = Constants.WRIST_L4_POSITION);
   }
 
-  public void wristToBarge() {
-    wristPositionVoltage.Position = Constants.WRIST_LOWER_LIMIT+2;
-    wristMotor.setControl(wristPositionVoltage);
-    wristSetPosition = Constants.WRIST_LOWER_LIMIT+2;
+  public Command wristToBarge() {
+    return this.run(() -> wristSetPosition = Constants.WIRST_BARGE_POSITION);
   }
 
   public Command spinWrist(double speed) {
@@ -113,17 +113,9 @@ public class WristSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if(wristSetPosition > getWristPosition()) {
-      wristPositionVoltage.Velocity = .1;
-      wristMotor.setControl(wristPositionVoltage);
-    }
-    else if(wristSetPosition < getWristPosition()) {
-      wristPositionVoltage.Velocity = -.1;
-      wristMotor.setControl(wristPositionVoltage);
-    }
     // This method will be called once per scheduler run
-
-    // updatePosition();
-    // wristMotor.setControl(wristPositionVoltage);
+    if(RobotState.isDisabled()) {
+      wristSetPosition = getWristPosition();
+    }
   }
 }

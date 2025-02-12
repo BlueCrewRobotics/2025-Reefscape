@@ -203,8 +203,8 @@ public final class Constants {
     public static final int ELEVATOR_MOTOR_LEFT_ID = 10;
     public static final int ELEVATOR_MOTOR_RIGHT_ID = 11;
 
-    public static final double ELEVATOR_UPPER_LIMIT = 0.403809; //TODO: Placeholder
-    public static final double ELEVATOR_LOWER_LIMIT = -43.844727; //TODO: Placeholder 
+    public static final double ELEVATOR_LOWER_LIMIT = 0.403809; //TODO: Placeholder
+    public static final double ELEVATOR_UPPER_LIMIT = 43.844727; //TODO: Placeholder 
     public static final double ELEVATOR_MAX_ROTATIONS_PER_SEC = 100;
 
     public static final int INTAKE_MOTOR_ID = 8; 
@@ -219,6 +219,7 @@ public final class Constants {
     public static final double WRIST_L1_POSITION = 0;
     public static final double WRIST_LMID_POSITION = 99999;
     public static final double WRIST_L4_POSITION = 99999;
+    public static final double WIRST_BARGE_POSITION = 16;
 
 
     //TODO: set position need to be set 
@@ -228,6 +229,6 @@ public final class Constants {
     public static final double L1REEFPOSITION = 999999;
     public static final double LOWCAGE = 999;
     public static final double PROCESSOR = 9;
-    public static final double CORALSTATION = -15; //-10.97
+    public static final double CORALSTATION = 15; //-10.97
 
 }

@@ -88,9 +88,10 @@ public class RobotContainer {
         auxDriver.leftBumper().whileTrue(intakeSubsystem.intakeAlgae());
         auxDriver.leftTrigger().onTrue(intakeSubsystem.stopIntake());
 
-        driver.a().onTrue(elevatorSubsystem.run(()->elevatorSubsystem.intakeCoral()));
-        driver.b().onTrue(wristSubsystem.run(()->wristSubsystem.wristToBarge()));
-        driver.y().onTrue(wristSubsystem.run(()->wristSubsystem.wristToIntake()));
+        driver.a().onTrue(elevatorSubsystem.intakeCoral());
+        driver.b().onTrue(elevatorSubsystem.returnHome());
+        //driver.b().onTrue(wristSubsystem.run(()->wristSubsystem.wristToBarge()));
+        driver.x().onTrue(wristSubsystem.run(()->wristSubsystem.wristToIntake()));
         auxDriver.leftBumper().onTrue(elevatorSubsystem.run(()->elevatorSubsystem.addPosition(auxDriver)));
     
        // auxDriver.povLeft().onTrue(elevatorSubsystem.L2Reef());

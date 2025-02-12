@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DutyCycle;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -56,17 +57,17 @@ climberConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.ELEVATOR
 climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     climberConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
-    climberConfig.Slot0.kP = 0.3;
-    climberConfig.Slot0.kI = 0.005;
+    climberConfig.Slot0.kP = 0.435;
+    climberConfig.Slot0.kI = 0.02;
     climberConfig.Slot0.kD = 0.0;
-    climberConfig.Slot0.kG = 0.3;
+    climberConfig.Slot0.kG = 0.65;
 
-    climberConfig.Slot1.kP = 0.3;
-    climberConfig.Slot1.kI = 0.005;
+    climberConfig.Slot1.kP = 0.18;
+    climberConfig.Slot1.kI = 0;//0.005;
     climberConfig.Slot1.kD = 0.0;
     climberConfig.Slot1.kG = 0.25;
     climberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    climberConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     motor1.getConfigurator().apply(climberConfig);
     motor2.getConfigurator().apply(climberConfig);
@@ -117,14 +118,18 @@ climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
 
   public void driveByJoystick(DoubleSupplier amount) {
     if(amount.getAsDouble()>.1 || amount.getAsDouble()<-.1){
-    double amountSpin = MathUtil.applyDeadband(amount.getAsDouble(), .1);
-    elevatorVelocityVoltage.Velocity = amountSpin*Constants.ELEVATOR_MAX_ROTATIONS_PER_SEC;
-    motor1.setControl(elevatorVelocityVoltage);
-    enableSetPosition = false;
-    elevatorSetPosition = getPosition();
+      double amountSpin = MathUtil.applyDeadband(amount.getAsDouble(), .1);
+      elevatorVelocityVoltage.Velocity = -amountSpin*Constants.ELEVATOR_MAX_ROTATIONS_PER_SEC;
+      motor1.setControl(elevatorVelocityVoltage);
+      elevatorSetPosition = getPosition();
     }
     else {
-    enableSetPosition = true;
+      if (motor1.getPosition().getValueAsDouble() <= elevatorSetPosition) {
+        motor1.setControl(elevatorPositionVoltage.withPosition(elevatorSetPosition).withSlot(0));
+      }
+      else {
+        motor1.setControl(elevatorPositionVoltage.withPosition(elevatorSetPosition).withSlot(1));
+      }
     }
   }
 
@@ -136,42 +141,23 @@ climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     }
   }
 
-  public void L2Reef() {
-    elevatorPositionVoltage.Position = Constants.L2REEFPOSITION;
-    motor1.setControl(elevatorPositionVoltage);
-    enableSetPosition = true;
-    elevatorSetPosition = Constants.L2REEFPOSITION;
+  public Command L2Reef() {
+    return this.runOnce(() -> elevatorSetPosition = Constants.L2REEFPOSITION);
+    
   }
 
-  public void intakeCoral(){
-    elevatorPositionVoltage.Position = Constants.CORALSTATION;
-    motor1.setControl(elevatorPositionVoltage);
-    enableSetPosition = true;
-    elevatorSetPosition = Constants.CORALSTATION;
+  public Command intakeCoral(){
+    return this.runOnce(() -> elevatorSetPosition = Constants.CORALSTATION);
   }
 
-  public void returnHome(){
-    elevatorPositionVoltage.Position = Constants.ELEVATOR_LOWER_LIMIT;
+  public Command returnHome(){
+    return this.runOnce(() -> elevatorSetPosition = 5.0d/*Constants.ELEVATOR_LOWER_LIMIT*/);
   }
   
   @Override
   public void periodic() {
-      // if (elevatorSetPosition > getPosition()) {
-      //   elevatorPositionVoltage.Velocity = .2;
-      //   motor1.setControl(elevatorPositionVoltage);
-      // }
-      // else if (elevatorSetPosition < getPosition()) {
-      //   elevatorPositionVoltage.Velocity = -.2;
-      //   motor1.setControl(elevatorPositionVoltage);
-      // }
-    // }
-    // if(!enableSetPosition){
-    //   if (elevatorSetPosition > getPosition()) {
-    //     elevatorVelocityVoltage.Velocity = -.1;
-    //   }
-    //   else if (elevatorSetPosition < getPosition()) {
-    //     elevatorVelocityVoltage.Velocity = .1;
-    //   }
-    // }
+    if (RobotState.isDisabled()) {
+      elevatorSetPosition = getPosition();
+    }
   }
 }
