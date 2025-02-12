@@ -7,21 +7,26 @@ package frc.robot.subsystems;
 import java.util.ResourceBundle.Control;
 import java.util.function.DoubleSupplier;
 
+import javax.swing.text.Position;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.ControlModeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DutyCycle;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 
 public class ElevatorSubsystem extends SubsystemBase {
@@ -32,6 +37,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private PositionVoltage elevatorPositionVoltage = new PositionVoltage(0);
   private VelocityVoltage elevatorVelocityVoltage = new VelocityVoltage(0);
   private TalonFXConfiguration climberConfig = new TalonFXConfiguration();
+  private CommandXboxController driver;
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
@@ -51,17 +57,17 @@ climberConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.ELEVATOR
 climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     climberConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
-    climberConfig.Slot0.kP = 0.3;
-    climberConfig.Slot0.kI = 0.005;
+    climberConfig.Slot0.kP = 0.435;
+    climberConfig.Slot0.kI = 0.02;
     climberConfig.Slot0.kD = 0.0;
-    climberConfig.Slot0.kG = 0.3;
+    climberConfig.Slot0.kG = 0.65;
 
-    climberConfig.Slot1.kP = 0.3;
-    climberConfig.Slot1.kI = 0.005;
+    climberConfig.Slot1.kP = 0.18;
+    climberConfig.Slot1.kI = 0;//0.005;
     climberConfig.Slot1.kD = 0.0;
     climberConfig.Slot1.kG = 0.25;
     climberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    climberConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     motor1.getConfigurator().apply(climberConfig);
     motor2.getConfigurator().apply(climberConfig);
@@ -74,6 +80,8 @@ climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
 
   public void stopMotor() {
     motor1.stopMotor();
+    //motor1.setControl(elevatorVelocityVoltage);
+    enableSetPosition = false;
   }
 
   //beginning to try to figure out how to get the elevator to stop in a specific spot
@@ -88,7 +96,12 @@ climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
   }
 
   public void setPosition(){
-    elevatorPositionVoltage.Position = motor1.getPosition().getValueAsDouble();
+    elevatorPositionVoltage.Position = motor1.getRotorPosition().getValueAsDouble();
+    motor1.setControl(elevatorPositionVoltage);
+  }
+
+  public double getPosition(){
+    return motor1.getPosition().getValueAsDouble();
   }
 
   public Command goUp(double speed) {
@@ -105,26 +118,46 @@ climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
 
   public void driveByJoystick(DoubleSupplier amount) {
     if(amount.getAsDouble()>.1 || amount.getAsDouble()<-.1){
-    double amountSpin = MathUtil.applyDeadband(amount.getAsDouble(), .1);
-    elevatorVelocityVoltage.Velocity = amountSpin*Constants.ELEVATOR_MAX_ROTATIONS_PER_SEC;
-    motor1.setControl(elevatorVelocityVoltage);
-    enableSetPosition = false;
+      double amountSpin = MathUtil.applyDeadband(amount.getAsDouble(), .1);
+      elevatorVelocityVoltage.Velocity = -amountSpin*Constants.ELEVATOR_MAX_ROTATIONS_PER_SEC;
+      motor1.setControl(elevatorVelocityVoltage);
+      elevatorSetPosition = getPosition();
     }
     else {
-       enableSetPosition = true;
+      if (motor1.getPosition().getValueAsDouble() <= elevatorSetPosition) {
+        motor1.setControl(elevatorPositionVoltage.withPosition(elevatorSetPosition).withSlot(0));
+      }
+      else {
+        motor1.setControl(elevatorPositionVoltage.withPosition(elevatorSetPosition).withSlot(1));
+      }
     }
   }
 
-  public void L2Reef() {
+  public void addPosition(CommandXboxController driver){
+    this.driver = driver;
+    if(driver.povUp().getAsBoolean()){
+    elevatorPositionVoltage.Position += 1;
     motor1.setControl(elevatorPositionVoltage);
-    elevatorPositionVoltage.Position = Constants.L2REEFPOSITION;
-    enableSetPosition = false;
+    }
+  }
+
+  public Command L2Reef() {
+    return this.runOnce(() -> elevatorSetPosition = Constants.L2REEFPOSITION);
+    
+  }
+
+  public Command intakeCoral(){
+    return this.runOnce(() -> elevatorSetPosition = Constants.CORALSTATION);
+  }
+
+  public Command returnHome(){
+    return this.runOnce(() -> elevatorSetPosition = 5.0d/*Constants.ELEVATOR_LOWER_LIMIT*/);
   }
   
   @Override
   public void periodic() {
-    //untested 
-    setPosition();
-    if(enableSetPosition){motor1.setControl(elevatorPositionVoltage);}
+    if (RobotState.isDisabled()) {
+      elevatorSetPosition = getPosition();
+    }
   }
 }
