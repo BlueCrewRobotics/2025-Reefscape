@@ -72,29 +72,7 @@ public class RobotContainer {
 
         // Configure the button bindings
         configureButtonBindings();
-       elevatorSubsystem.setDefaultCommand(elevatorSubsystem.run(()->elevatorSubsystem.driveByJoystick(auxDriver::getRightY)));
-       wristSubsystem.setDefaultCommand(wristSubsystem.run(()->wristSubsystem.spinByJoystick(auxDriver::getLeftY)));
-       
-        //attaching commands to aux controller for testing 
-        
-        // auxDriver.x().onTrue(wristSubsystem.spinWrist(.2));
-        // auxDriver.x().onFalse(wristSubsystem.stopWrist());
-        //auxDriver.a().onTrue(elevatorSubsystem.setCurrentPositionHold());
-        auxDriver.a().onTrue(elevatorSubsystem.stopElevator());
-        auxDriver.x().onTrue(wristSubsystem.stopWrist());
-
-        auxDriver.rightBumper().whileTrue(intakeSubsystem.intakeCoral());
-        auxDriver.rightBumper().onFalse(intakeSubsystem.stopIntake());
-        auxDriver.leftBumper().whileTrue(intakeSubsystem.intakeAlgae());
-        auxDriver.leftTrigger().onTrue(intakeSubsystem.stopIntake());
-
-        driver.a().onTrue(elevatorSubsystem.intakeCoral());
-        driver.b().onTrue(elevatorSubsystem.returnHome());
-        //driver.b().onTrue(wristSubsystem.run(()->wristSubsystem.wristToBarge()));
-        driver.x().onTrue(wristSubsystem.run(()->wristSubsystem.wristToIntake()));
-        auxDriver.leftBumper().onTrue(elevatorSubsystem.run(()->elevatorSubsystem.addPosition(auxDriver)));
     
-       // auxDriver.povLeft().onTrue(elevatorSubsystem.L2Reef());
         // PathPlanner command templates
         NamedCommands.registerCommand("marker1", Commands.print("Passed marker 1"));
         NamedCommands.registerCommand("marker2", Commands.print("Passed marker 2"));
@@ -137,6 +115,26 @@ public class RobotContainer {
                 () -> swerveSubsystem.rotationPercentageFromTargetAngle(swerveSubsystem.getAngleToPose(new Translation2d(0, 0))),
                 robotCentric
         )));
+
+        elevatorSubsystem.setDefaultCommand(elevatorSubsystem.run(()->elevatorSubsystem.driveByJoystick(auxDriver::getRightY)));
+        wristSubsystem.setDefaultCommand(wristSubsystem.run(()->wristSubsystem.spinByJoystick(auxDriver::getLeftY)));
+        
+        //intake/ extake controls
+        auxDriver.rightBumper().whileTrue(intakeSubsystem.intakeCoral());
+        auxDriver.rightBumper().onFalse(intakeSubsystem.stopIntake());
+        auxDriver.leftBumper().whileTrue(intakeSubsystem.intakeAlgae());
+        auxDriver.leftTrigger().onTrue(intakeSubsystem.stopIntake());
+        
+        //elevator controls
+        auxDriver.povUp().onTrue(elevatorSubsystem.intakeCoral());
+        auxDriver.povDown().onTrue(elevatorSubsystem.returnHome());
+
+        //wrist controls
+        driver.a().onTrue(wristSubsystem.resetPosition());
+        auxDriver.x().onTrue(wristSubsystem.wristToIntake());
+        auxDriver.a().onTrue(wristSubsystem.wristToL1());
+        auxDriver.b().onTrue(wristSubsystem.wristToLMID());
+        auxDriver.y().onTrue(wristSubsystem.wristToL4());
     }
 
     /**
