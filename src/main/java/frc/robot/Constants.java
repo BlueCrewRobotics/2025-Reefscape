@@ -200,35 +200,33 @@ public final class Constants {
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
 
+    //elevator constants 
     public static final int ELEVATOR_MOTOR_LEFT_ID = 10;
     public static final int ELEVATOR_MOTOR_RIGHT_ID = 11;
-
     public static final double ELEVATOR_LOWER_LIMIT = 0.403809; //TODO: Placeholder
     public static final double ELEVATOR_UPPER_LIMIT = 43.844727; //TODO: Placeholder 
     public static final double ELEVATOR_MAX_ROTATIONS_PER_SEC = 100;
 
-    public static final int INTAKE_MOTOR_ID = 8; 
-
-
-    public static final int WRIST_MOTOR_ID = 9;
-    public static final double WRIST_UPPER_LIMIT = 18.414551; //-7.884277
-    public static final double WRIST_LOWER_LIMIT = -7.884277;//18.414551
-    public static final double WRIST_MAX_ROTATIONS_PER_SEC = 100;
-    public static final double WIRST_MAX_VOLTAGE = 40;
-    public static final double WRIST_INTAKE_POSITION = 2;
-    public static final double WRIST_L1_POSITION = 0;
-    public static final double WRIST_LMID_POSITION = 99999;
-    public static final double WRIST_L4_POSITION = 99999;
-    public static final double WIRST_BARGE_POSITION = 16;
-
-
-    //TODO: set position need to be set 
-    public static final double L4REEFPOSITION = 999;
-    public static final double L3REEFPOSITION = 99999;
-    public static final double L2REEFPOSITION = 999999;
-    public static final double L1REEFPOSITION = 999999;
-    public static final double LOWCAGE = 999;
+    public static final double L4REEFPOSITION = 40.575195;
+    public static final double L3REEFPOSITION = 23.789551;
+    public static final double L2REEFPOSITION = 14.213379;
+    public static final double L1REEFPOSITION = 2;
+    public static final double DEEPCAGE = 999;
     public static final double PROCESSOR = 9;
     public static final double CORALSTATION = 15; //-10.97
 
+    //intake constants 
+    public static final int INTAKE_MOTOR_ID = 8; 
+
+    //wrist constants
+    public static final int WRIST_MOTOR_ID = 9;
+    public static final double WRIST_UPPER_LIMIT = 18.414551; //-7.884277
+    public static final double WRIST_LOWER_LIMIT = -7.212402;//18.414551
+    public static final double WRIST_MAX_ROTATIONS_PER_SEC = 100;
+    public static final double WIRST_MAX_VOLTAGE = 40;
+    public static final double WRIST_INTAKE_POSITION = 0.344238;//2.512207;
+    public static final double WRIST_L1_POSITION = -2;
+    public static final double WRIST_LMID_POSITION = 10.924316;
+    public static final double WRIST_L4_POSITION = 13.634766;
+    public static final double WIRST_BARGE_POSITION = -5.212402;
 }

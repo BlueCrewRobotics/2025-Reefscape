@@ -68,7 +68,7 @@ public class WristSubsystem extends SubsystemBase {
   }
 
   public void updatePosition(){
-    wristPositionVoltage.Position = wristMotor.getPosition().getValueAsDouble();
+    wristPositionVoltage.Position = getWristPosition();
   }
 
   public void spinByJoystick(DoubleSupplier amount) {
@@ -84,23 +84,23 @@ public class WristSubsystem extends SubsystemBase {
   }
 
   public Command wristToIntake(){
-    return this.run(() -> wristSetPosition = Constants.WRIST_INTAKE_POSITION);
+    return this.runOnce(() -> wristSetPosition = Constants.WRIST_INTAKE_POSITION);
   }
 
   public Command wristToL1(){
-    return this.run(() -> wristSetPosition = Constants.WRIST_L1_POSITION);
+    return this.runOnce(() -> wristSetPosition = Constants.WRIST_L1_POSITION);
   }
 
   public Command wristToLMID(){
-    return this.run(() -> wristSetPosition = Constants.WRIST_LMID_POSITION);
+    return this.runOnce(() -> wristSetPosition = Constants.WRIST_LMID_POSITION);
   }
 
   public Command wristToL4(){
-    return this.run(() -> wristSetPosition = Constants.WRIST_L4_POSITION);
+    return this.runOnce(() -> wristSetPosition = Constants.WRIST_L4_POSITION);
   }
 
   public Command wristToBarge() {
-    return this.run(() -> wristSetPosition = Constants.WIRST_BARGE_POSITION);
+    return this.runOnce(() -> wristSetPosition = Constants.WIRST_BARGE_POSITION);
   }
 
   public Command spinWrist(double speed) {
@@ -111,9 +111,15 @@ public class WristSubsystem extends SubsystemBase {
     return new InstantCommand(()-> stopWristMotor(), this);
   }
 
+  public Command resetPosition() {
+    return this.runOnce(() -> wristMotor.setPosition(0));
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    //makes sure when the robot is disabled the position is being updated so when reenabled the wrist will not
+    //go back to the position it was at when it was disabled (hazard)
     if(RobotState.isDisabled()) {
       wristSetPosition = getWristPosition();
     }

@@ -44,17 +44,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     motor1.clearStickyFaults();
     motor2.clearStickyFaults();
 
-//    climberConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-//
-//    climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-
     climberConfig.CurrentLimits.SupplyCurrentLimit = 40;
-    //climberConfig.CurrentLimits. = 60;
     climberConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-climberConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_UPPER_LIMIT;
-climberConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.ELEVATOR_LOWER_LIMIT;    
-climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    climberConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_UPPER_LIMIT;
+    climberConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.ELEVATOR_LOWER_LIMIT;    
+    climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     climberConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
     climberConfig.Slot0.kP = 0.435;
@@ -80,35 +75,15 @@ climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
 
   public void stopMotor() {
     motor1.stopMotor();
-    //motor1.setControl(elevatorVelocityVoltage);
     enableSetPosition = false;
   }
-
-  //beginning to try to figure out how to get the elevator to stop in a specific spot
-  //have not gotten very far, I would look at Maurader or Fortissimo code as an example 
 
   public void setHoldPosition(double setPosition) {
     motor1.setPosition(setPosition, .1);
   }
 
-  public void enableSetPosition(boolean enable) {
-    enableSetPosition = enable;
-  }
-
-  public void setPosition(){
-    elevatorPositionVoltage.Position = motor1.getRotorPosition().getValueAsDouble();
-    motor1.setControl(elevatorPositionVoltage);
-  }
-
   public double getPosition(){
     return motor1.getPosition().getValueAsDouble();
-  }
-
-  public Command goUp(double speed) {
-    return new InstantCommand(()->spinMotor(-speed),this);
-  }
-  public Command goDown(double speed) {
-    return new InstantCommand(()->spinMotor(speed),this);
   }
 
   public Command stopElevator() {
@@ -116,6 +91,7 @@ climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     return new InstantCommand(()->stopMotor(), this);
   }
 
+  //lets the driver control the position, when no input is given the elevator will hold its position
   public void driveByJoystick(DoubleSupplier amount) {
     if(amount.getAsDouble()>.1 || amount.getAsDouble()<-.1){
       double amountSpin = MathUtil.applyDeadband(amount.getAsDouble(), .1);
@@ -133,17 +109,21 @@ climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     }
   }
 
-  public void addPosition(CommandXboxController driver){
-    this.driver = driver;
-    if(driver.povUp().getAsBoolean()){
-    elevatorPositionVoltage.Position += 1;
-    motor1.setControl(elevatorPositionVoltage);
-    }
+  //gives new set positions for the elevator to go to 
+  public Command L1Reef() {
+    return this.runOnce(() -> elevatorSetPosition = Constants.L1REEFPOSITION);
   }
 
   public Command L2Reef() {
     return this.runOnce(() -> elevatorSetPosition = Constants.L2REEFPOSITION);
-    
+  }
+
+  public Command L3Reef() {
+    return this.runOnce(() -> elevatorSetPosition = Constants.L3REEFPOSITION);
+  }
+
+  public Command L4Reef() {
+    return this.runOnce(() -> elevatorSetPosition = Constants.ELEVATOR_UPPER_LIMIT);
   }
 
   public Command intakeCoral(){
@@ -151,11 +131,14 @@ climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
   }
 
   public Command returnHome(){
-    return this.runOnce(() -> elevatorSetPosition = 5.0d/*Constants.ELEVATOR_LOWER_LIMIT*/);
+    return this.runOnce(() -> elevatorSetPosition = Constants.ELEVATOR_LOWER_LIMIT);
   }
   
   @Override
   public void periodic() {
+    // This method will be called once per scheduler run
+    //makes sure when the robot is disabled the position is being updated so when reenabled the elevator will not
+    //go back to the position it was at when it was disabled (hazard)
     if (RobotState.isDisabled()) {
       elevatorSetPosition = getPosition();
     }
