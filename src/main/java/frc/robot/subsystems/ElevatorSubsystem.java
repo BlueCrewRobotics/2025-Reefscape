@@ -123,7 +123,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public Command L4Reef() {
-    return this.runOnce(() -> elevatorSetPosition = Constants.L4REEFPOSITION);
+    return this.runOnce(() -> elevatorSetPosition = Constants.ELEVATOR_UPPER_LIMIT);
   }
 
   public Command intakeCoral(){

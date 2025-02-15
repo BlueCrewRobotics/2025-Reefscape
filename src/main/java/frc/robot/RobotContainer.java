@@ -128,13 +128,15 @@ public class RobotContainer {
         //elevator controls
         auxDriver.povUp().onTrue(elevatorSubsystem.intakeCoral());
         auxDriver.povDown().onTrue(elevatorSubsystem.returnHome());
+        auxDriver.povLeft().onTrue(wristSubsystem.wristToLMID().andThen(elevatorSubsystem.L2Reef()));
+        auxDriver.povRight().onTrue(wristSubsystem.wristToLMID().andThen(elevatorSubsystem.L3Reef()));
 
         //wrist controls
         driver.a().onTrue(wristSubsystem.resetPosition());
         auxDriver.x().onTrue(wristSubsystem.wristToIntake());
         auxDriver.a().onTrue(wristSubsystem.wristToL1());
         auxDriver.b().onTrue(wristSubsystem.wristToLMID());
-        auxDriver.y().onTrue(wristSubsystem.wristToL4());
+        auxDriver.y().onTrue(wristSubsystem.wristToL4().andThen(elevatorSubsystem.L4Reef()));
     }
 
     /**
