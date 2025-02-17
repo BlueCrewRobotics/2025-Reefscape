@@ -62,7 +62,7 @@
            
                private static VisionPoseEstimator instance;
            
-               private VisionPoseEstimator() {
+               VisionPoseEstimator() {
                    camera1 = VisionModule.getInstance().getAprilTagsFrontRightCamera();
                    camera2 = VisionModule.getInstance().getAprilTagsRearLeftCamera();
                    currentCamera = camera1;
