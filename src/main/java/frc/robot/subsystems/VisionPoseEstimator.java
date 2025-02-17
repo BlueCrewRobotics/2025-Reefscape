@@ -35,6 +35,8 @@ import java.util.Optional;
 
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.robot.Constants;
+
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -51,11 +53,11 @@ public class VisionPoseEstimator {
     private double lastEstTimestamp = 0;
 
     public VisionPoseEstimator() {
-        camera = new PhotonCamera(cameraName);
+        camera = new PhotonCamera(Constants.PhotonVision.Camera_Name_Back);
 
         photonEstimator =
                 new PhotonPoseEstimator(
-                        tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCam);
+                        tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.PhotonVision.April_Tag_Back_pos);
         photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
 

@@ -147,14 +147,17 @@ public final class Constants {
     }
 
     public static final class PhotonVision {
-        public static final String cameraName = "testCamera";
+        public static final String Camera_Name_Back = "aprilTagsBack";
+        public static final String camera_Name_Front = "aprilTagsFront";
         // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-        public static final Transform3d robotToCam =
+        public static final Transform3d April_Tag_Front_pos =
                 new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
-
+        public static final Transform3d April_Tag_Back_pos =
+                new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
         // The layout of the AprilTags on the field
         public static final AprilTagFieldLayout tagLayout =
-                AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+                AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+
 
         // The standard deviations of our vision estimated poses, which affect correction rate
         // (Fake values. Experiment and determine estimation noise on an actual robot.)
@@ -230,3 +233,7 @@ public final class Constants {
     public static final double WRIST_L4_POSITION = 14.634766;
     public static final double WIRST_BARGE_POSITION = -4.212402;
 }
+
+
+
+
