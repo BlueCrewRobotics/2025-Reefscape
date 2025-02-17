@@ -220,13 +220,13 @@ public final class Constants {
 
     //wrist constants
     public static final int WRIST_MOTOR_ID = 9;
-    public static final double WRIST_UPPER_LIMIT = 18.414551; //-7.884277
-    public static final double WRIST_LOWER_LIMIT = -7.212402;//18.414551
+    public static final double WRIST_UPPER_LIMIT = 19.274414; //-7.884277
+    public static final double WRIST_LOWER_LIMIT = -4.093750;//18.414551
     public static final double WRIST_MAX_ROTATIONS_PER_SEC = 100;
     public static final double WIRST_MAX_VOLTAGE = 40;
-    public static final double WRIST_INTAKE_POSITION = 0.344238;//2.512207;
-    public static final double WRIST_L1_POSITION = -2;
-    public static final double WRIST_LMID_POSITION = 10.924316;
-    public static final double WRIST_L4_POSITION = 13.634766;
-    public static final double WIRST_BARGE_POSITION = -5.212402;
+    public static final double WRIST_INTAKE_POSITION = 0.855957;//2.512207;
+    public static final double WRIST_L1_POSITION = -1;
+    public static final double WRIST_LMID_POSITION = 11.924316;
+    public static final double WRIST_L4_POSITION = 14.634766;
+    public static final double WIRST_BARGE_POSITION = -4.212402;
 }

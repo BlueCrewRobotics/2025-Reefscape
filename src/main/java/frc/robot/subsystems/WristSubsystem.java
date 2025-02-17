@@ -41,10 +41,10 @@ public class WristSubsystem extends SubsystemBase {
     wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     wristConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    wristConfig.Slot0.kP = 0.3;
-    wristConfig.Slot0.kI = .005;
+    wristConfig.Slot0.kP = .2;//0.3;
+    wristConfig.Slot0.kI = 0.001;//.005;
     wristConfig.Slot0.kD = 0.0;
-    wristConfig.Slot0.kG = .3;
+    wristConfig.Slot0.kG = -.16;
 
     wristConfig.Slot1.kP =0.0;
     wristConfig.Slot1.kI = 0.0;
