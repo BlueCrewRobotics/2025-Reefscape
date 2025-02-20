@@ -147,13 +147,13 @@ public final class Constants {
     }
 
     public static final class PhotonVision {
-        public static final String Camera_Name_Back = "aprilTagsBack";
-        public static final String camera_Name_Front = "aprilTagsFront";
+        public static final String Camera_Name_Back = "Camera_Intake_Side";
+        public static final String camera_Name_Front = "Camera_Battery_Side";
         // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
         public static final Transform3d April_Tag_Front_pos =
-                new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+            new Transform3d(new Translation3d(Units.inchesToMeters(11.5d), Units.inchesToMeters(-10.7d), Units.inchesToMeters(9.0d)), new Rotation3d(0d, Math.toRadians(-33d), 0/*Math.PI+3.125*/));
         public static final Transform3d April_Tag_Back_pos =
-                new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+            new Transform3d(new Translation3d(Units.inchesToMeters(-11.5d), Units.inchesToMeters(10.7d), Units.inchesToMeters(8.3d)), new Rotation3d(0d, Math.toRadians(-33d), Math.toRadians(-178)/*3.125*/));
         // The layout of the AprilTags on the field
         public static final AprilTagFieldLayout tagLayout =
                 AprilTagFields.kDefaultField.loadAprilTagLayoutField();
