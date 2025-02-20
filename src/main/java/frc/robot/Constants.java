@@ -156,7 +156,7 @@ public final class Constants {
             new Transform3d(new Translation3d(Units.inchesToMeters(-11.5d), Units.inchesToMeters(10.7d), Units.inchesToMeters(8.3d)), new Rotation3d(0d, Math.toRadians(-33d), Math.toRadians(-178)/*3.125*/));
         // The layout of the AprilTags on the field
         public static final AprilTagFieldLayout tagLayout =
-                AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+                AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
 
         // The standard deviations of our vision estimated poses, which affect correction rate
