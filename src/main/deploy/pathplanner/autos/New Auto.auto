@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Example Path"
+            "pathName": "B Center Leave to the Reef 1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "print hello"
+            "name": "score coral"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "TestingStuffs",
+  "folder": null,
   "choreoAuto": false
 }

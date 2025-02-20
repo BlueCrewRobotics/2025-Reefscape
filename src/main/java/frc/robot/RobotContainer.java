@@ -2,11 +2,16 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardComponent;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
@@ -77,6 +82,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("marker1", Commands.print("Passed marker 1"));
         NamedCommands.registerCommand("marker2", Commands.print("Passed marker 2"));
         NamedCommands.registerCommand("print hello", Commands.print("Hello"));
+        NamedCommands.registerCommand("score coral", wristSubsystem.wristToBarge());
 
         // Chooser for number of actions in auto
         numOfAutoActions = new SendableChooser<>();
@@ -133,6 +139,7 @@ public class RobotContainer {
 
         //wrist controls
         driver.a().onTrue(wristSubsystem.resetPosition());
+        driver.b().onTrue(elevatorSubsystem.resetPosition());
         auxDriver.x().onTrue(wristSubsystem.wristToIntake());
         auxDriver.a().onTrue(wristSubsystem.wristToL1());
         auxDriver.b().onTrue(wristSubsystem.wristToLMID());
@@ -146,16 +153,17 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An ExampleCommand will run in autonomous
-        //return autoChooser.getSelected();
+        return autoChooser.getSelected();
+        //return new PathPlannerAuto("New Auto");
 
-        Command[] autoCommands = new Command[numOfAutoActions.getSelected()*2];
+        // Command[] autoCommands = new Command[numOfAutoActions.getSelected()*2];
 
-        for (int i = 0; i < (autoCommands.length/2); i++) {
-            autoCommands[(i*2)] = selectedPathActions.get(i).getSelected();
-            autoCommands[(i*2)+1] = selectedNoteActions.get(i).getSelected();
-        }
+        // for (int i = 0; i < (autoCommands.length/2); i++) {
+        //     autoCommands[(i*2)] = selectedPathActions.get(i).getSelected();
+        //     autoCommands[(i*2)+1] = selectedNoteActions.get(i).getSelected();
+        // }
 
-        return new SequentialCommandGroup(autoCommands);
+        // return new SequentialCommandGroup(autoCommands);
     }
 
     /**

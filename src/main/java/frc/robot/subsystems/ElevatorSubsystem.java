@@ -91,6 +91,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     return new InstantCommand(()->stopMotor(), this);
   }
 
+  public Command resetPosition() {
+    return this.run(()->motor1.setPosition(Constants.ELEVATOR_LOWER_LIMIT)).andThen(this.run(()->elevatorSetPosition = Constants.ELEVATOR_LOWER_LIMIT));
+  }
+
   //lets the driver control the position, when no input is given the elevator will hold its position
   public void driveByJoystick(DoubleSupplier amount) {
     if(amount.getAsDouble()>.1 || amount.getAsDouble()<-.1){
