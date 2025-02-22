@@ -1,11 +1,7 @@
 {
     "fileName": "photonlib.json",
     "name": "photonlib",
-<<<<<<< Updated upstream
-    "version": "v2025.2.1-rc1",
-=======
     "version": "v2025.2.1-rc2",
->>>>>>> Stashed changes
     "uuid": "515fe07e-bfc6-11fa-b3de-0242ac130004",
     "frcYear": "2025",
     "mavenUrls": [
@@ -17,11 +13,7 @@
         {
             "groupId": "org.photonvision",
             "artifactId": "photontargeting-cpp",
-<<<<<<< Updated upstream
-            "version": "v2025.2.1-rc1",
-=======
             "version": "v2025.2.1-rc2",
->>>>>>> Stashed changes
             "skipInvalidPlatforms": true,
             "isJar": false,
             "validPlatforms": [
@@ -36,11 +28,7 @@
         {
             "groupId": "org.photonvision",
             "artifactId": "photonlib-cpp",
-<<<<<<< Updated upstream
-            "version": "v2025.2.1-rc1",
-=======
             "version": "v2025.2.1-rc2",
->>>>>>> Stashed changes
             "libName": "photonlib",
             "headerClassifier": "headers",
             "sharedLibrary": true,
@@ -55,11 +43,7 @@
         {
             "groupId": "org.photonvision",
             "artifactId": "photontargeting-cpp",
-<<<<<<< Updated upstream
-            "version": "v2025.2.1-rc1",
-=======
             "version": "v2025.2.1-rc2",
->>>>>>> Stashed changes
             "libName": "photontargeting",
             "headerClassifier": "headers",
             "sharedLibrary": true,
@@ -76,20 +60,12 @@
         {
             "groupId": "org.photonvision",
             "artifactId": "photonlib-java",
-<<<<<<< Updated upstream
-            "version": "v2025.2.1-rc1"
-=======
             "version": "v2025.2.1-rc2"
->>>>>>> Stashed changes
         },
         {
             "groupId": "org.photonvision",
             "artifactId": "photontargeting-java",
-<<<<<<< Updated upstream
-            "version": "v2025.2.1-rc1"
-=======
             "version": "v2025.2.1-rc2"
->>>>>>> Stashed changes
         }
     ]
 }

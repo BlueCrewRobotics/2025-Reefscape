@@ -136,6 +136,8 @@ public class RobotContainer {
         auxDriver.povDown().onTrue(elevatorSubsystem.returnHome());
         auxDriver.povLeft().onTrue(wristSubsystem.wristToLMID().andThen(elevatorSubsystem.L2Reef()));
         auxDriver.povRight().onTrue(wristSubsystem.wristToLMID().andThen(elevatorSubsystem.L3Reef()));
+        auxDriver.rightStick().toggleOnTrue(elevatorSubsystem.linearActuatorOut());
+        auxDriver.leftStick().toggleOnTrue(elevatorSubsystem.linearActuatorIn());
 
         //wrist controls
         driver.a().onTrue(wristSubsystem.resetPosition());
