@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -38,6 +40,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private VelocityVoltage elevatorVelocityVoltage = new VelocityVoltage(0);
   private TalonFXConfiguration climberConfig = new TalonFXConfiguration();
   private CommandXboxController driver;
+  private Servo elevatorStopper;
+  private double elevatorStopperPosition;
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
@@ -67,6 +71,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     motor1.getConfigurator().apply(climberConfig);
     motor2.getConfigurator().apply(climberConfig);
     motor2.setControl(new Follower(Constants.ELEVATOR_MOTOR_LEFT_ID, false));
+    
+    elevatorStopper = new Servo(0);
   }
 
   public void spinMotor(double speed) {
@@ -137,6 +143,18 @@ public class ElevatorSubsystem extends SubsystemBase {
   public Command returnHome(){
     return this.runOnce(() -> elevatorSetPosition = Constants.ELEVATOR_LOWER_LIMIT);
   }
+
+  public Command linearActuatorOut(){
+    return this.run(
+      () -> elevatorStopper.set(1)
+      );
+  }
+
+  public Command linearActuatorIn() {
+    return this.run(
+      () -> elevatorStopper.set(200d / 370d)
+      );
+  }
   
   @Override
   public void periodic() {
@@ -146,5 +164,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     if (RobotState.isDisabled()) {
       elevatorSetPosition = getPosition();
     }
+
+    elevatorStopperPosition = elevatorStopper.getPosition();
+    SmartDashboard.putNumber("Servo Position", elevatorStopperPosition);
   }
 }
