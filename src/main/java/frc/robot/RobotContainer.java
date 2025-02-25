@@ -122,6 +122,8 @@ public class RobotContainer {
                 robotCentric
         )));
 
+        driver.rightTrigger().whileTrue(swerveSubsystem.halveRotationSpeed());
+
         elevatorSubsystem.setDefaultCommand(elevatorSubsystem.run(()->elevatorSubsystem.driveByJoystick(auxDriver::getRightY)));
         wristSubsystem.setDefaultCommand(wristSubsystem.run(()->wristSubsystem.spinByJoystick(auxDriver::getLeftY)));
         
