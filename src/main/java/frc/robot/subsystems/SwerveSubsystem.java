@@ -34,6 +34,8 @@ public class SwerveSubsystem extends SubsystemBase {
     public SwerveModule[] swerveMods;
     private AHRS gyro;
 
+    private boolean rotationHalved = false;
+
     private final VisionPoseEstimator vision;
 
 
@@ -259,6 +261,11 @@ public class SwerveSubsystem extends SubsystemBase {
         }
     }
 
+    public Command halveRotationSpeed()
+    {
+        return this.runOnce(() -> rotationHalved = true).finallyDo(() -> rotationHalved = false);
+    }
+
     /**
      * Used for driving the robot during teleop
      * @param translationSup {@link DoubleSupplier} for the forwards/backwards speed as a percentage
@@ -272,6 +279,11 @@ public class SwerveSubsystem extends SubsystemBase {
         double translationVal = MathUtil.applyDeadband(translationSup.getAsDouble(), Constants.stickDeadband);
         double strafeVal = MathUtil.applyDeadband(strafeSup.getAsDouble(), Constants.stickDeadband);
         double rotationVal = MathUtil.applyDeadband(rotationSup.getAsDouble(), Constants.stickDeadband);
+        
+        if(rotationHalved)
+        {
+            rotationVal *= 0.5;
+        }
 
         drive(new Translation2d(translationVal, strafeVal).times(Constants.Swerve.maxSpeed),
                 rotationVal * Constants.Swerve.maxAngularVelocity,
