@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
@@ -209,7 +210,7 @@ public final class Constants {
     public static final double ELEVATOR_LOWER_LIMIT = 0.403809; //TODO: Placeholder
     public static final double ELEVATOR_UPPER_LIMIT = 43.844727; //TODO: Placeholder 
     public static final double ELEVATOR_MAX_ROTATIONS_PER_SEC = 100;
-
+    public static final int ELEVATOR_CAN_CODER_ID = 989 ;
     public static final double L4REEFPOSITION = 40.575195;
     public static final double L3REEFPOSITION = 23.789551;
     public static final double L2REEFPOSITION = 14.213379;

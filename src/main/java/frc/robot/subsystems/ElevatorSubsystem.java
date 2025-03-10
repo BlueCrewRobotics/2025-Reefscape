@@ -9,11 +9,13 @@ import java.util.function.DoubleSupplier;
 
 import javax.swing.text.Position;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ControlModeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -21,6 +23,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Servo;
@@ -32,46 +35,49 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 
 public class ElevatorSubsystem extends SubsystemBase {
-  private final TalonFX motor1 = new TalonFX(Constants.ELEVATOR_MOTOR_LEFT_ID);
-  private final TalonFX motor2 = new TalonFX(Constants.ELEVATOR_MOTOR_RIGHT_ID);
-  private boolean enableSetPosition = true;
-  private double elevatorSetPosition;
-  private PositionVoltage elevatorPositionVoltage = new PositionVoltage(0);
-  private VelocityVoltage elevatorVelocityVoltage = new VelocityVoltage(0);
-  private TalonFXConfiguration climberConfig = new TalonFXConfiguration();
-  private CommandXboxController driver;
-  private Servo elevatorStopper;
-  private double elevatorStopperPosition;
 
-  /** Creates a new Elevator. */
-  public ElevatorSubsystem() {
-    motor1.clearStickyFaults();
-    motor2.clearStickyFaults();
-
-    climberConfig.CurrentLimits.SupplyCurrentLimit = 40;
-    climberConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-    climberConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_UPPER_LIMIT;
-    climberConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.ELEVATOR_LOWER_LIMIT;    
-    climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    climberConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-
-    climberConfig.Slot0.kP = 0.435;
-    climberConfig.Slot0.kI = 0.02;
-    climberConfig.Slot0.kD = 0.0;
-    climberConfig.Slot0.kG = 0.65;
-
-    climberConfig.Slot1.kP = 0.18;
-    climberConfig.Slot1.kI = 0;//0.005;
-    climberConfig.Slot1.kD = 0.0;
-    climberConfig.Slot1.kG = 0.25;
-    climberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    private final TalonFX motor1 = new TalonFX(Constants.ELEVATOR_MOTOR_LEFT_ID);
+    private final TalonFX motor2 = new TalonFX(Constants.ELEVATOR_MOTOR_RIGHT_ID);
+    private boolean enableSetPosition = true;
+    private double elevatorSetPosition;
+    private PositionVoltage elevatorPositionVoltage = new PositionVoltage(0);
+    private VelocityVoltage elevatorVelocityVoltage = new VelocityVoltage(0);
+    private TalonFXConfiguration climberConfig = new TalonFXConfiguration();
+    private CommandXboxController driver;
+    private Servo elevatorStopper;
+    private double elevatorStopperPosition;
+    private final CANcoder elevatorCANcoder;
+  
+    /** Creates a new Elevator. */
+    public ElevatorSubsystem() {
+      motor1.clearStickyFaults();
+      motor2.clearStickyFaults();
+  
+      climberConfig.CurrentLimits.SupplyCurrentLimit = 40;
+      climberConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+  
+      climberConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_UPPER_LIMIT;
+      climberConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.ELEVATOR_LOWER_LIMIT;    
+      climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+      climberConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+  
+      climberConfig.Slot0.kP = 0.435;
+      climberConfig.Slot0.kI = 0.02;
+      climberConfig.Slot0.kD = 0.0;
+      climberConfig.Slot0.kG = 0.65;
+  
+      climberConfig.Slot1.kP = 0.18;
+      climberConfig.Slot1.kI = 0;//0.005;
+      climberConfig.Slot1.kD = 0.0;
+      climberConfig.Slot1.kG = 0.25;
+      climberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+      climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+      elevatorCANcoder = new CANcoder(Constants.ELEVATOR_CAN_CODER_ID);
 
     motor1.getConfigurator().apply(climberConfig);
     motor2.getConfigurator().apply(climberConfig);
     motor2.setControl(new Follower(Constants.ELEVATOR_MOTOR_LEFT_ID, false));
-    
+    resetMotorEncoderToAbsolute();
     elevatorStopper = new Servo(0);
   }
 
@@ -155,7 +161,16 @@ public class ElevatorSubsystem extends SubsystemBase {
       () -> elevatorStopper.set(200d / 370d)
       );
   }
+    
   
+  public Angle getElevatorPosition() {
+    return elevatorCANcoder.getAbsolutePosition().getValue() ;
+}
+public void resetMotorEncoderToAbsolute() {
+  Angle newPosition = getElevatorPosition() ;
+
+  motor1.setPosition(newPosition);
+}
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
