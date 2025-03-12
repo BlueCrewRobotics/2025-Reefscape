@@ -82,7 +82,10 @@ public class RobotContainer {
         NamedCommands.registerCommand("marker1", Commands.print("Passed marker 1"));
         NamedCommands.registerCommand("marker2", Commands.print("Passed marker 2"));
         NamedCommands.registerCommand("print hello", Commands.print("Hello"));
-        NamedCommands.registerCommand("score coral", wristSubsystem.wristToBarge());
+        NamedCommands.registerCommand("Score Coral", wristSubsystem.wristToLMID().andThen(elevatorSubsystem.L3Reef()));
+        NamedCommands.registerCommand("Shoot Coral", intakeSubsystem.intakeAlgae().withTimeout(1).andThen(intakeSubsystem.stopIntake()));
+        NamedCommands.registerCommand("Get Coral", elevatorSubsystem.returnHome().andThen(wristSubsystem.wristToIntake()));
+        NamedCommands.registerCommand("Intake Coral", intakeSubsystem.intakeCoral().onlyWhile(() -> intakeSubsystem.coralInIntake()));
 
         // Chooser for number of actions in auto
         numOfAutoActions = new SendableChooser<>();
@@ -105,22 +108,37 @@ public class RobotContainer {
     private void configureButtonBindings() {
         /* Driver Buttons */
         zeroGyro.onTrue(new InstantCommand(swerveSubsystem::zeroHeading));
-        driver.povCenter().onFalse(swerveSubsystem.run(() -> swerveSubsystem.teleopDriveSwerve(
-                () -> driver.getRawAxis(translationAxis),
-                () -> driver.getRawAxis(strafeAxis),
-                () -> swerveSubsystem.rotationPercentageFromTargetAngle(Rotation2d.fromDegrees(driver.getHID().getPOV())),
-                robotCentric
-                )));
+        // driver.povCenter().onFalse(swerveSubsystem.run(() -> swerveSubsystem.teleopDriveSwerve(
+        //         () -> driver.getRawAxis(translationAxis),
+        //         () -> driver.getRawAxis(strafeAxis),
+        //         () -> swerveSubsystem.rotationPercentageFromTargetAngle(Rotation2d.fromDegrees(driver.getHID().getPOV())),
+        //         robotCentric
+        //         )));
         cancelRotateToAngle.onTrue(new InstantCommand(swerveSubsystem::cancelCurrentCommand));
 
         driver.leftStick().toggleOnTrue(new RumbleControllerWhenDriving(driver));
 
-        driver.rightStick().toggleOnTrue(swerveSubsystem.run(() -> swerveSubsystem.teleopDriveSwerve(
-                () -> driver.getRawAxis(translationAxis),
-                () -> driver.getRawAxis(strafeAxis),
-                () -> swerveSubsystem.rotationPercentageFromTargetAngle(swerveSubsystem.getAngleToPose(new Translation2d(0, 0))),
-                robotCentric
-        )));
+        driver.rightBumper().whileTrue(swerveSubsystem.run(()->swerveSubsystem.teleopSlowTurnDriveSwerve(
+                driver::getLeftY,
+                driver::getLeftX,
+                driver::getRightX,
+                () -> driver.leftBumper().getAsBoolean()
+            ))
+        );
+
+        driver.x().whileTrue(swerveSubsystem.teleopDriveSwerveAndRotateToAngleCommand(
+                driver::getLeftY,
+                driver::getLeftX,
+                swerveSubsystem.getTargetYaw(),
+                () -> driver.leftBumper().getAsBoolean()
+        ));
+
+        // driver.rightStick().toggleOnTrue(swerveSubsystem.run(() -> swerveSubsystem.teleopDriveSwerve(
+        //         () -> driver.getRawAxis(translationAxis),
+        //         () -> driver.getRawAxis(strafeAxis),
+        //         () -> swerveSubsystem.rotationPercentageFromTargetAngle(swerveSubsystem.getAngleToPose(new Translation2d(0, 0))),
+        //         robotCentric
+        // )));
 
         driver.rightTrigger().whileTrue(swerveSubsystem.halveRotationSpeed());
             
@@ -142,10 +160,10 @@ public class RobotContainer {
         auxDriver.leftStick().toggleOnTrue(elevatorSubsystem.linearActuatorIn());
 
         //wrist controls
-        driver.a().onTrue(wristSubsystem.resetPosition());
-        driver.b().onTrue(elevatorSubsystem.resetPosition());
+        // auxDriver.a().onTrue(wristSubsystem.resetPosition());
+        driver.leftTrigger().onTrue(swerveSubsystem.invertDriver());
         auxDriver.x().onTrue(wristSubsystem.wristToIntake());
-        auxDriver.a().onTrue(wristSubsystem.wristToL1());
+        auxDriver.a().onTrue(wristSubsystem.wristToL4());
         auxDriver.b().onTrue(wristSubsystem.wristToLMID());
         auxDriver.y().onTrue(wristSubsystem.wristToL4().andThen(elevatorSubsystem.L4Reef()));
     }

@@ -85,7 +85,7 @@ public final class VisionModule {
 
         photonEstimatorFront = 
                 new PhotonPoseEstimator(
-                        tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,Constants.PhotonVision. April_Tag_Front_pos);
+                        tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,Constants.PhotonVision.April_Tag_Front_pos);
         photonEstimatorFront.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 //last year stuff dont know
         //notesIndexer = new PhotonCamera(NOTES_INDEXER_CAMERA_NAME);
