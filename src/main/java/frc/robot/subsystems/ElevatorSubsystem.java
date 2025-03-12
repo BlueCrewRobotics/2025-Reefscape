@@ -10,6 +10,8 @@ import java.util.function.DoubleSupplier;
 import javax.swing.text.Position;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CANcoderConfigurator;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
@@ -18,6 +20,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ControlModeValue;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
@@ -56,22 +59,26 @@ public class ElevatorSubsystem extends SubsystemBase {
       climberConfig.CurrentLimits.SupplyCurrentLimit = 40;
       climberConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
   
-      climberConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_UPPER_LIMIT;
+      // climberConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_UPPER_LIMIT;
       climberConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.ELEVATOR_LOWER_LIMIT;    
-      climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+      climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
       climberConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+      // climberConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+      // climberConfig.DifferentialSensors.DifferentialRemoteSensorID = 4;
   
       climberConfig.Slot0.kP = 0.435;
       climberConfig.Slot0.kI = 0.02;
       climberConfig.Slot0.kD = 0.0;
       climberConfig.Slot0.kG = 0.65;
   
-      climberConfig.Slot1.kP = 0.18;
-      climberConfig.Slot1.kI = 0;//0.005;
+      climberConfig.Slot1.kP = 0.22;
+      climberConfig.Slot1.kI = 0.005;//0.005;
       climberConfig.Slot1.kD = 0.0;
-      climberConfig.Slot1.kG = 0.25;
+      climberConfig.Slot1.kG = 0.65;
+
       climberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
       climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
       elevatorCANcoder = new CANcoder(Constants.ELEVATOR_CAN_CODER_ID);
 
     motor1.getConfigurator().apply(climberConfig);
@@ -95,6 +102,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public double getPosition(){
+    // return elevatorCANcoder.getPosition().getValueAsDouble();
     return motor1.getPosition().getValueAsDouble();
   }
 
@@ -104,7 +112,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public Command resetPosition() {
-    return this.run(()->motor1.setPosition(Constants.ELEVATOR_LOWER_LIMIT)).andThen(this.run(()->elevatorSetPosition = Constants.ELEVATOR_LOWER_LIMIT));
+    return this.run(()->motor1.setPosition(0));
   }
 
   //lets the driver control the position, when no input is given the elevator will hold its position
@@ -113,10 +121,12 @@ public class ElevatorSubsystem extends SubsystemBase {
       double amountSpin = MathUtil.applyDeadband(amount.getAsDouble(), .1);
       elevatorVelocityVoltage.Velocity = -amountSpin*Constants.ELEVATOR_MAX_ROTATIONS_PER_SEC;
       motor1.setControl(elevatorVelocityVoltage);
+      resetMotorEncoderToAbsolute();
       elevatorSetPosition = getPosition();
     }
     else {
-      if (motor1.getPosition().getValueAsDouble() <= elevatorSetPosition) {
+      resetMotorEncoderToAbsolute();
+      if (getPosition() <= elevatorSetPosition) {
         motor1.setControl(elevatorPositionVoltage.withPosition(elevatorSetPosition).withSlot(0));
       }
       else {
@@ -127,27 +137,27 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   //gives new set positions for the elevator to go to 
   public Command L1Reef() {
-    return this.runOnce(() -> elevatorSetPosition = Constants.L1REEFPOSITION);
+    return this.runOnce(() -> elevatorSetPosition = Constants.L1REEFPOSITION * Constants.ELEVATOR_CAN_TO_MOTOR_RATIO);
   }
 
   public Command L2Reef() {
-    return this.runOnce(() -> elevatorSetPosition = Constants.L2REEFPOSITION);
+    return this.runOnce(() -> elevatorSetPosition = Constants.L2REEFPOSITION * Constants.ELEVATOR_CAN_TO_MOTOR_RATIO);
   }
 
   public Command L3Reef() {
-    return this.runOnce(() -> elevatorSetPosition = Constants.L3REEFPOSITION);
+    return this.runOnce(() -> elevatorSetPosition = Constants.L3REEFPOSITION * Constants.ELEVATOR_CAN_TO_MOTOR_RATIO);
   }
 
   public Command L4Reef() {
-    return this.runOnce(() -> elevatorSetPosition = Constants.ELEVATOR_UPPER_LIMIT);
+    return this.runOnce(() -> elevatorSetPosition = Constants.L4REEFPOSITION * Constants.ELEVATOR_CAN_TO_MOTOR_RATIO);
   }
 
   public Command intakeCoral(){
-    return this.runOnce(() -> elevatorSetPosition = Constants.CORALSTATION);
+    return this.runOnce(() -> elevatorSetPosition = Constants.CORALSTATION * Constants.ELEVATOR_CAN_TO_MOTOR_RATIO);
   }
 
   public Command returnHome(){
-    return this.runOnce(() -> elevatorSetPosition = Constants.ELEVATOR_LOWER_LIMIT);
+    return this.runOnce(() -> elevatorSetPosition = Constants.ELEVATOR_LOWER_LIMIT * Constants.ELEVATOR_CAN_TO_MOTOR_RATIO);
   }
 
   public Command linearActuatorOut(){
@@ -164,23 +174,28 @@ public class ElevatorSubsystem extends SubsystemBase {
     
   
   public Angle getElevatorPosition() {
-    return elevatorCANcoder.getAbsolutePosition().getValue() ;
+    return elevatorCANcoder.getAbsolutePosition().getValue();
 }
 public void resetMotorEncoderToAbsolute() {
-  Angle newPosition = getElevatorPosition() ;
+  // Angle newPosition = getElevatorPosition() ;
 
-  motor1.setPosition(newPosition);
+  motor1.setPosition(elevatorCANcoder.getPosition().getValueAsDouble()*Constants.ELEVATOR_CAN_TO_MOTOR_RATIO);
 }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     //makes sure when the robot is disabled the position is being updated so when reenabled the elevator will not
     //go back to the position it was at when it was disabled (hazard)
     if (RobotState.isDisabled()) {
+      resetMotorEncoderToAbsolute();
       elevatorSetPosition = getPosition();
     }
 
-    elevatorStopperPosition = elevatorStopper.getPosition();
+    elevatorStopperPosition = elevatorStopper.getAngle();
     SmartDashboard.putNumber("Servo Position", elevatorStopperPosition);
+    SmartDashboard.putNumber("Elevator Position", getPosition());
+    SmartDashboard.putNumber("Set Position", elevatorSetPosition);
+    SmartDashboard.putNumber("Elevator Motor Temperature", motor1.getDeviceTemp().getValueAsDouble());
   }
 }

@@ -111,6 +111,8 @@
                private void useBestCamera() {
                    var cam1Targets = camera1.getLatestResult().getTargets();
                    var cam2Targets = camera2.getLatestResult().getTargets();
+                //    var cam1Targets = camera1.getAllUnreadResults().get(camera1.getAllUnreadResults().size()-1).getTargets();
+                //    var cam2Targets = camera2.getAllUnreadResults().get(camera2.getAllUnreadResults().size()-1).getTargets();
                    int cam1numTags = 0;
                    int cam2numTags = 0;
                    double cam1AvgDist = 0;
@@ -147,8 +149,10 @@
                    }
                }
            
-               public PhotonPipelineResult getLatestResult() {
-                   return currentCamera.getLatestResult();
+                public PhotonPipelineResult getLatestResult() {
+                    return currentCamera.getLatestResult();
+                //    var results = currentCamera.getAllUnreadResults();
+                //    return results.get(results.size()-1);
                }
            
                /**
@@ -162,9 +166,31 @@
                    useBestCamera();
                    var visionEst = currentPhotonEstimator.update(getLatestResult());
                    double latestTimestamp = currentCamera.getLatestResult().getTimestampSeconds();
+                //    double latestTimestamp = currentCamera.getAllUnreadResults().get(currentCamera.getAllUnreadResults().size()-1).getTimestampSeconds();
                    boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
                    if (newResult) lastEstTimestamp = latestTimestamp;
                    return (Optional<EstimatedRobotPose>) visionEst;
+               }
+
+               public double getTargetRotationValue(Rotation2d CurrentYaw){
+                currentCamera = camera2;
+                var result = getLatestResult();
+                double targetYaw = CurrentYaw.getDegrees();
+                double newYaw;
+                if (!result.getTargets().isEmpty()) {
+                    if (result.hasTargets()) {
+                        newYaw = result.getBestTarget().getYaw();
+                        if (newYaw > .1 || newYaw < -.1) {
+                            if (newYaw > .1) {
+                               targetYaw += newYaw; 
+                            }
+                            else {
+                                targetYaw -= newYaw;
+                            }
+                        }
+                    }
+                }
+                return targetYaw;
                }
            
                /**

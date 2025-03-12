@@ -4,9 +4,12 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,6 +25,13 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeConfig.CurrentLimits.SupplyCurrentLowerTime = .1;
     intakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     intakeMotor.clearStickyFaults();
+  }
+
+  public boolean coralInIntake() {
+    if (intakeMotor.getSupplyVoltage().getValueAsDouble() > 20) {
+      return true;
+    }
+    else return false;
   }
 
   public void spinMotor(double speed) {
@@ -49,5 +59,6 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("Intake Motor Temperature", intakeMotor.getDeviceTemp().getValueAsDouble());
   }
 }
