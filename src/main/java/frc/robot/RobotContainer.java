@@ -82,10 +82,16 @@ public class RobotContainer {
         NamedCommands.registerCommand("marker1", Commands.print("Passed marker 1"));
         NamedCommands.registerCommand("marker2", Commands.print("Passed marker 2"));
         NamedCommands.registerCommand("print hello", Commands.print("Hello"));
-        NamedCommands.registerCommand("Score Coral", wristSubsystem.wristToLMID().andThen(elevatorSubsystem.L3Reef()));
-        NamedCommands.registerCommand("Shoot Coral", intakeSubsystem.intakeAlgae().withTimeout(1).andThen(intakeSubsystem.stopIntake()));
+        NamedCommands.registerCommand("Score Coral LMID", wristSubsystem.wristToLMID().andThen(elevatorSubsystem.L3Reef()));
+        NamedCommands.registerCommand("L1 Score", elevatorSubsystem.elevatorToIntakeAuto().andThen(wristSubsystem.wristToL1Auto()));
+        NamedCommands.registerCommand("L2 Score", wristSubsystem.wristToLMIDAuto().andThen(elevatorSubsystem.elevatorToL2Auto()));
+        NamedCommands.registerCommand("Shoot Coral", wristSubsystem.wristToLMID().andThen(intakeSubsystem.intakeAlgae()).withTimeout(1).andThen(intakeSubsystem.stopIntake()));
         NamedCommands.registerCommand("Get Coral", elevatorSubsystem.returnHome().andThen(wristSubsystem.wristToIntake()));
         NamedCommands.registerCommand("Intake Coral", intakeSubsystem.intakeCoral().onlyWhile(() -> intakeSubsystem.coralInIntake()));
+        NamedCommands.registerCommand("Dislodge Shooter", elevatorSubsystem.spinMotor(.2).withTimeout(1).andThen(elevatorSubsystem.stopMotor()));
+        NamedCommands.registerCommand("L4 Score", elevatorSubsystem.elevatorToL4Auto().andThen(wristSubsystem.wristToL4Auto()));
+        NamedCommands.registerCommand("Home", elevatorSubsystem.returnHome().andThen(wristSubsystem.wristToIntake()));
+        NamedCommands.registerCommand("Reset Elevator Position", elevatorSubsystem.runOnce(() -> elevatorSubsystem.resetMotorEncoderToAbsolute()));
 
         // Chooser for number of actions in auto
         numOfAutoActions = new SendableChooser<>();
@@ -118,13 +124,13 @@ public class RobotContainer {
 
         driver.leftStick().toggleOnTrue(new RumbleControllerWhenDriving(driver));
 
-        driver.rightBumper().whileTrue(swerveSubsystem.run(()->swerveSubsystem.teleopSlowTurnDriveSwerve(
-                driver::getLeftY,
-                driver::getLeftX,
-                driver::getRightX,
-                () -> driver.leftBumper().getAsBoolean()
-            ))
-        );
+        // driver.rightBumper().whileTrue(swerveSubsystem.run(()->swerveSubsystem.teleopSlowTurnDriveSwerve(
+        //         driver::getLeftY,
+        //         driver::getLeftX,
+        //         driver::getRightX,
+        //         () -> driver.leftBumper().getAsBoolean()
+        //     ))
+        // );
 
         driver.x().whileTrue(swerveSubsystem.teleopDriveSwerveAndRotateToAngleCommand(
                 driver::getLeftY,
@@ -160,8 +166,7 @@ public class RobotContainer {
         auxDriver.leftStick().toggleOnTrue(elevatorSubsystem.linearActuatorIn());
 
         //wrist controls
-        // auxDriver.a().onTrue(wristSubsystem.resetPosition());
-        driver.leftTrigger().onTrue(swerveSubsystem.invertDriver());
+        driver.rightBumper().onTrue(swerveSubsystem.invertDriver());
         auxDriver.x().onTrue(wristSubsystem.wristToIntake());
         auxDriver.a().onTrue(wristSubsystem.wristToL4());
         auxDriver.b().onTrue(wristSubsystem.wristToLMID());

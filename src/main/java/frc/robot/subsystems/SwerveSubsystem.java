@@ -46,6 +46,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private PIDController rotationPIDController;
 
     public SwerveSubsystem() {
+
         gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
         gyro.reset();
 
@@ -57,6 +58,7 @@ public class SwerveSubsystem extends SubsystemBase {
         };
 
         resetModulesToAbsolute();
+        
 
         vision = new VisionPoseEstimator();
         
@@ -103,9 +105,9 @@ public class SwerveSubsystem extends SubsystemBase {
         PathPlannerLogging.setLogActivePathCallback((poses) -> {
             // Do whatever you want with the poses here
             field.getObject("path").setPoses(poses);
+            SmartDashboard.putData("Field", field);
         });
 
-        SmartDashboard.putData("Field", field);
     }
 
     /**
@@ -287,9 +289,9 @@ public class SwerveSubsystem extends SubsystemBase {
         }
         
         /* Get Values, Deadband*/
-        double translationVal = MathUtil.applyDeadband(translationSup.getAsDouble(), Constants.stickDeadband)*invertDrive;
-        double strafeVal = MathUtil.applyDeadband(strafeSup.getAsDouble(), Constants.stickDeadband)*invertDrive;
-        double rotationVal = MathUtil.applyDeadband(rotationInput, Constants.stickDeadband);
+        double translationVal = -MathUtil.applyDeadband(translationSup.getAsDouble(), Constants.stickDeadband)*invertDrive;
+        double strafeVal = -MathUtil.applyDeadband(strafeSup.getAsDouble(), Constants.stickDeadband)*invertDrive;
+        double rotationVal = -MathUtil.applyDeadband(rotationInput, Constants.stickDeadband);
 
         drive(new Translation2d(translationVal, strafeVal).times(Constants.Swerve.maxSpeed),
                 rotationVal * Constants.Swerve.maxAngularVelocity,

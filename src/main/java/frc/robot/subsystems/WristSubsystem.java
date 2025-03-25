@@ -92,6 +92,18 @@ public class WristSubsystem extends SubsystemBase {
     return this.runOnce(() -> wristSetPosition = Constants.WRIST_L1_POSITION);
   }
 
+  public Command wristToL1Auto(){
+    return this.runOnce(() -> wristMotor.setControl(wristPositionVoltage.withPosition(Constants.WRIST_L1_POSITION).withSlot(0)));
+  }
+
+  public Command wristToLMIDAuto(){
+    return this.runOnce(() -> wristMotor.setControl(wristPositionVoltage.withPosition(Constants.WRIST_LMID_POSITION).withSlot(0)));
+  }
+
+  public Command wristToL4Auto(){
+    return this.runOnce(() -> wristMotor.setControl(wristPositionVoltage.withPosition(Constants.WRIST_L4_POSITION).withSlot(0)));
+  }
+
   public Command wristToLMID(){
     return this.runOnce(() -> wristSetPosition = Constants.WRIST_LMID_POSITION);
   }
