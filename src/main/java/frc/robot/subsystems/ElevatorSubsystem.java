@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.ResourceBundle.Control;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import javax.swing.text.Position;
@@ -59,7 +60,7 @@ public class ElevatorSubsystem extends SubsystemBase {
       climberConfig.CurrentLimits.SupplyCurrentLimit = 40;
       climberConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
   
-      // climberConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_UPPER_LIMIT;
+      // climberConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_UPPER_LIMIT; 
       climberConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.ELEVATOR_LOWER_LIMIT;    
       climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
       climberConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
@@ -71,9 +72,9 @@ public class ElevatorSubsystem extends SubsystemBase {
       climberConfig.Slot0.kD = 0.0;
       climberConfig.Slot0.kG = 0.65;
   
-      climberConfig.Slot1.kP = 0.22;
-      climberConfig.Slot1.kI = 0.005;//0.005;
-      climberConfig.Slot1.kD = 0.0;
+      climberConfig.Slot1.kP = 0.17;
+      climberConfig.Slot1.kI = 0.006;//0.005;
+      climberConfig.Slot1.kD = 0.01;
       climberConfig.Slot1.kG = 0.65;
 
       climberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -88,13 +89,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     elevatorStopper = new Servo(0);
   }
 
-  public void spinMotor(double speed) {
-    motor1.set(speed);
+  public Command spinMotor(double speed) {
+    return this.runEnd(()->motor1.set(speed), ()->stopMotor());
   }
 
-  public void stopMotor() {
-    motor1.stopMotor();
-    enableSetPosition = false;
+  public Command stopMotor() {
+    return this.runOnce(()-> {motor1.stopMotor();
+    enableSetPosition = false;});
   }
 
   public void setHoldPosition(double setPosition) {
@@ -108,11 +109,23 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public Command stopElevator() {
     enableSetPosition = true;
-    return new InstantCommand(()->stopMotor(), this);
+    return this.runOnce(()->stopMotor());
   }
 
   public Command resetPosition() {
     return this.run(()->motor1.setPosition(0));
+  }
+
+  public Command elevatorToIntakeAuto(){
+    return this.runOnce(() -> {motor1.setControl(elevatorPositionVoltage.withPosition(Constants.CORALSTATION*Constants.ELEVATOR_CAN_TO_MOTOR_RATIO).withSlot(1)); elevatorSetPosition = Constants.CORALSTATION*Constants.ELEVATOR_CAN_TO_MOTOR_RATIO;});
+  }
+
+  public Command elevatorToL2Auto(){
+    return this.runOnce(() -> {motor1.setControl(elevatorPositionVoltage.withPosition(Constants.L2REEFPOSITION*Constants.ELEVATOR_CAN_TO_MOTOR_RATIO).withSlot(1)); elevatorSetPosition = Constants.L2REEFPOSITION*Constants.ELEVATOR_CAN_TO_MOTOR_RATIO;});
+  }
+
+  public Command elevatorToL4Auto(){
+    return this.runOnce(() -> {motor1.setControl(elevatorPositionVoltage.withPosition(Constants.L4REEFPOSITION*Constants.ELEVATOR_CAN_TO_MOTOR_RATIO).withSlot(1)); elevatorSetPosition = Constants.L4REEFPOSITION*Constants.ELEVATOR_CAN_TO_MOTOR_RATIO;});
   }
 
   //lets the driver control the position, when no input is given the elevator will hold its position
@@ -187,6 +200,7 @@ public void resetMotorEncoderToAbsolute() {
     // This method will be called once per scheduler run
     //makes sure when the robot is disabled the position is being updated so when reenabled the elevator will not
     //go back to the position it was at when it was disabled (hazard)
+    
     if (RobotState.isDisabled()) {
       resetMotorEncoderToAbsolute();
       elevatorSetPosition = getPosition();
