@@ -152,9 +152,9 @@ public final class Constants {
         public static final String camera_Name_Front = "Camera_Battery_Side";
         // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
         public static final Transform3d April_Tag_Front_pos =
-            new Transform3d(new Translation3d(Units.inchesToMeters(11.5d), Units.inchesToMeters(-10.7d), Units.inchesToMeters(9.0d)), new Rotation3d(Math.toRadians(-33d), 0, 0/*Math.PI+3.125*/));
+            new Transform3d(new Translation3d(Units.inchesToMeters(-11.5d), Units.inchesToMeters(-10.7d), Units.inchesToMeters(9.0d)), new Rotation3d(Math.toRadians(-33d), 0, 0/*Math.PI+3.125*/));
         public static final Transform3d April_Tag_Back_pos =
-            new Transform3d(new Translation3d(Units.inchesToMeters(12.5d), Units.inchesToMeters(-5.5d), Units.inchesToMeters(35.3d)), new Rotation3d(Math.toRadians(65d), 0, Math.toRadians(180)/*3.125*/));
+            new Transform3d(new Translation3d(Units.inchesToMeters(-12.5d), Units.inchesToMeters(5.5d), Units.inchesToMeters(35.3d)), new Rotation3d(Math.toRadians(65d), 0, Math.toRadians(180)/*3.125*/));
         // The layout of the AprilTags on the field
         public static final AprilTagFieldLayout tagLayout =
                 AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
@@ -207,7 +207,7 @@ public final class Constants {
     //elevator constants 
     public static final int ELEVATOR_MOTOR_LEFT_ID = 10;
     public static final int ELEVATOR_MOTOR_RIGHT_ID = 11;
-    public static final double ELEVATOR_LOWER_LIMIT = 0.4375; //.403809; //TODO: Placeholder
+    public static final double ELEVATOR_LOWER_LIMIT = 0.335449; //.403809; //TODO: Placeholder
     //public static final double ELEVATOR_UPPER_LIMIT = 43; //TODO: Placeholder 
     public static final double ELEVATOR_MAX_ROTATIONS_PER_SEC = 80;
     public static final double ELEVATOR_CAN_TO_MOTOR_RATIO = 5.24954/0.916748;
