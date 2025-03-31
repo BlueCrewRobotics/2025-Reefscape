@@ -63,12 +63,6 @@ public final class VisionModule {
     private PhotonPoseEstimator photonEstimatorFront;
     private PhotonPoseEstimator photonEstimatorBack;
 
-// last years stuff dont know
-    //private final PhotonCamera notesIndexer;
-    //private PhotonPipelineResult lastNoteResult = null;
-    //private boolean startTrackingNotes = false;
-
-
     private static VisionModule instance;
 
     private VisionModule() {
@@ -85,10 +79,8 @@ public final class VisionModule {
 
         photonEstimatorFront = 
                 new PhotonPoseEstimator(
-                        tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,Constants.PhotonVision. April_Tag_Front_pos);
+                        tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,Constants.PhotonVision.April_Tag_Front_pos);
         photonEstimatorFront.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-//last year stuff dont know
-        //notesIndexer = new PhotonCamera(NOTES_INDEXER_CAMERA_NAME);
     }
 
     public static synchronized VisionModule getInstance() {
@@ -125,26 +117,6 @@ public final class VisionModule {
     public PhotonPoseEstimator getPhotonEstimatorRearLeft() {
         return photonEstimatorBack;
     }
-//last year stuff dont know
-   // public PhotonCamera getNotesIndexerCamera() {
-       // return notesIndexer;
-    //}
-
-    //public PhotonPipelineResult getLastNoteResult() {
-      //  return lastNoteResult;
-    //}
-
-    //protected void setLastNoteResult(PhotonPipelineResult lastNoteResult) {
-      //  this.lastNoteResult = lastNoteResult;
-    //}
-
-    //public boolean isStartTrackingNotes() {
-      //  return startTrackingNotes;
-    //}
-
-    //public void setStartTrackingNotes(boolean startTrackingNotes) {
-      //  this.startTrackingNotes = startTrackingNotes;
-    //}
 
     public void trackPipelineResults() {
     }

@@ -1,0 +1,49 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Dislodge Shooter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L2 Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B Center Score to the Reef 1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot Coral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Center to Coral Station"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B Coral Station Left Right to Reef 3"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

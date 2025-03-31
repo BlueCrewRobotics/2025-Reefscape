@@ -33,8 +33,12 @@ public class SwerveSubsystem extends SubsystemBase {
     private SwerveDrivePoseEstimator swervePoseEstimator;
     public SwerveModule[] swerveMods;
     private AHRS gyro;
+    private int invertDrive = 1;
+
+    private boolean rotationHalved = false;
 
     private final VisionPoseEstimator vision;
+    private double targetYaw;
 
 
     private Field2d field = new Field2d();
@@ -42,6 +46,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private PIDController rotationPIDController;
 
     public SwerveSubsystem() {
+
         gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
         gyro.reset();
 
@@ -53,6 +58,7 @@ public class SwerveSubsystem extends SubsystemBase {
         };
 
         resetModulesToAbsolute();
+        
 
         vision = new VisionPoseEstimator();
         
@@ -99,9 +105,9 @@ public class SwerveSubsystem extends SubsystemBase {
         PathPlannerLogging.setLogActivePathCallback((poses) -> {
             // Do whatever you want with the poses here
             field.getObject("path").setPoses(poses);
+            SmartDashboard.putData("Field", field);
         });
 
-        SmartDashboard.putData("Field", field);
     }
 
     /**
@@ -195,6 +201,7 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public void setPose(Pose2d pose) {
         swervePoseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);
+        // swervePoseEstimator.resetPose(pose);
     }
 
     /**
@@ -259,6 +266,11 @@ public class SwerveSubsystem extends SubsystemBase {
         }
     }
 
+    public Command halveRotationSpeed()
+    {
+        return this.runOnce(() -> rotationHalved = true).finallyDo(() -> rotationHalved = false);
+    }
+
     /**
      * Used for driving the robot during teleop
      * @param translationSup {@link DoubleSupplier} for the forwards/backwards speed as a percentage
@@ -268,13 +280,45 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public void teleopDriveSwerve(DoubleSupplier translationSup, DoubleSupplier strafeSup,
                                   DoubleSupplier rotationSup, BooleanSupplier robotCentricSup) {
+        
+        Double rotationInput = rotationSup.getAsDouble();
+        
+        if(rotationHalved)
+        {
+            rotationInput = rotationSup.getAsDouble() * 0.001;
+        }
+        
         /* Get Values, Deadband*/
-        double translationVal = MathUtil.applyDeadband(translationSup.getAsDouble(), Constants.stickDeadband);
-        double strafeVal = MathUtil.applyDeadband(strafeSup.getAsDouble(), Constants.stickDeadband);
-        double rotationVal = MathUtil.applyDeadband(rotationSup.getAsDouble(), Constants.stickDeadband);
+        double translationVal = -MathUtil.applyDeadband(translationSup.getAsDouble(), Constants.stickDeadband)*invertDrive;
+        double strafeVal = -MathUtil.applyDeadband(strafeSup.getAsDouble(), Constants.stickDeadband)*invertDrive;
+        double rotationVal = -MathUtil.applyDeadband(rotationInput, Constants.stickDeadband);
 
         drive(new Translation2d(translationVal, strafeVal).times(Constants.Swerve.maxSpeed),
                 rotationVal * Constants.Swerve.maxAngularVelocity,
+                !robotCentricSup.getAsBoolean(),
+                true);
+    }
+
+    public Command invertDriver() {
+        return this.runOnce(() -> invertDrive = invertDrive*-1);
+    }
+
+    /**
+     * Used for driving the robot during teleop
+     * @param translationSup {@link DoubleSupplier} for the forwards/backwards speed as a percentage
+     * @param strafeSup {@link DoubleSupplier} for the left/right speed as a percentage
+     * @param rotationSup {@link DoubleSupplier} for the angular velocity as a percentage
+     * @param robotCentricSup {@link BooleanSupplier} for driving in robot or field centric mode
+     */
+    public void teleopSlowTurnDriveSwerve(DoubleSupplier translationSup, DoubleSupplier strafeSup,
+                                  DoubleSupplier rotationSup, BooleanSupplier robotCentricSup) {
+        /* Get Values, Deadband*/
+        double translationVal = MathUtil.applyDeadband(translationSup.getAsDouble(), Constants.stickDeadband);
+        double strafeVal = MathUtil.applyDeadband(strafeSup.getAsDouble(), Constants.stickDeadband)/4;
+        double rotationVal = MathUtil.applyDeadband(rotationSup.getAsDouble(), Constants.stickDeadband)/4;
+
+        drive(new Translation2d(translationVal, strafeVal).times(Constants.Swerve.maxSpeed),
+                (rotationVal * Constants.Swerve.maxAngularVelocity),
                 !robotCentricSup.getAsBoolean(),
                 true);
     }
@@ -284,9 +328,23 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param targetAngle The angle the robot should turn to
      * @return The angular velocity as a percentage
      */
-    public double rotationPercentageFromTargetAngle(Rotation2d targetAngle) {
+    public double rotationPercentageFromTargetAngle(Double targetAngle) {
         rotationPIDController.reset();
-        return MathUtil.clamp(rotationPIDController.calculate(getGyroYaw().getDegrees()%360, targetAngle.getDegrees()%360), -0.25, 0.25);
+        return MathUtil.clamp(rotationPIDController.calculate(getGyroYaw().getDegrees()%360, targetAngle%360), -0.25, 0.25);
+        // rotationPIDController.calculate(getGyroYaw().getDegrees()%360, targetAngle%360);
+        // if (targetAngle > 181 || targetAngle < -181) {
+        //     if (targetAngle > 181) {
+        //         //return (getGyroYaw().getDegrees()-targetAngle)/100;
+        //         rotationPIDController.setSetpoint(targetYaw);
+        //         return -.2;
+        //     }
+        //     else {
+        //         //return (getGyroYaw().getDegrees()-targetAngle)/100;
+        //         rotationPIDController.setSetpoint(targetYaw);
+        //         return .2;
+        //     }
+        // }
+        // else rotationPIDController.setSetpoint(targetYaw); return 0;
     }
 
     /**
@@ -323,10 +381,14 @@ public class SwerveSubsystem extends SubsystemBase {
                 () -> teleopDriveSwerve(
                         translationSup,
                         strafeSup,
-                        () -> rotationPercentageFromTargetAngle(Rotation2d.fromDegrees(targetDegrees)),
+                        () -> rotationPercentageFromTargetAngle(targetDegrees),
                         robotCentricSup
                 )
         );
+    }
+
+    public double getTargetYaw() {
+        return vision.getTargetRotationValue(getGyroYaw());
     }
 
     @Override
@@ -347,6 +409,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
         SmartDashboard.putNumber("Swerve Estimator X", swervePoseEstimator.getEstimatedPosition().getX());
         SmartDashboard.putNumber("Swerve Estimator Y", swervePoseEstimator.getEstimatedPosition().getY());
+        SmartDashboard.putNumber("Swerve Yaw", getGyroYaw().getDegrees());
+        SmartDashboard.putNumber("Target Yaw", vision.getTargetRotationValue(getGyroYaw()));
+        SmartDashboard.putNumber("Rotation Velocity", rotationPercentageFromTargetAngle(getTargetYaw()));
         if(visionEst.isPresent()) {
             SmartDashboard.putNumber("Vision Estimator X", visionEst.get().estimatedPose.getX());
             SmartDashboard.putNumber("Vision Estimator Y", visionEst.get().estimatedPose.getY());
@@ -356,7 +421,8 @@ public class SwerveSubsystem extends SubsystemBase {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Integrated", mod.getPosition().angle.getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder", mod.getCANcoder().getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle", mod.getPosition().angle.getDegrees());
-            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);    
+            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);   
         }
+        SmartDashboard.putNumber("Inverted?", invertDrive);
     }
 }

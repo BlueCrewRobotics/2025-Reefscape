@@ -15,6 +15,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -91,6 +92,18 @@ public class WristSubsystem extends SubsystemBase {
     return this.runOnce(() -> wristSetPosition = Constants.WRIST_L1_POSITION);
   }
 
+  public Command wristToL1Auto(){
+    return this.runOnce(() -> wristMotor.setControl(wristPositionVoltage.withPosition(Constants.WRIST_L1_POSITION).withSlot(0)));
+  }
+
+  public Command wristToLMIDAuto(){
+    return this.runOnce(() -> wristMotor.setControl(wristPositionVoltage.withPosition(Constants.WRIST_LMID_POSITION).withSlot(0)));
+  }
+
+  public Command wristToL4Auto(){
+    return this.runOnce(() -> wristMotor.setControl(wristPositionVoltage.withPosition(Constants.WRIST_L4_POSITION).withSlot(0)));
+  }
+
   public Command wristToLMID(){
     return this.runOnce(() -> wristSetPosition = Constants.WRIST_LMID_POSITION);
   }
@@ -123,5 +136,7 @@ public class WristSubsystem extends SubsystemBase {
     if(RobotState.isDisabled()) {
       wristSetPosition = getWristPosition();
     }
+    SmartDashboard.putNumber(" Wrist Set Position", wristSetPosition);
+    SmartDashboard.putNumber("Real Position", wristMotor.getPosition().getValueAsDouble());
   }
 }

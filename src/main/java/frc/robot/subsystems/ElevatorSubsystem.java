@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -39,7 +38,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private VelocityVoltage elevatorVelocityVoltage = new VelocityVoltage(0);
   private TalonFXConfiguration climberConfig = new TalonFXConfiguration();
   private CommandXboxController driver;
-  private  Servo linearActuator;
+
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
     motor1.clearStickyFaults();
@@ -138,20 +137,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   public Command returnHome(){
     return this.runOnce(() -> elevatorSetPosition = Constants.ELEVATOR_LOWER_LIMIT);
   }
-
-  public Command servoOut() {
-    return new InstantCommand(
-            () -> linearActuator.set(1),
-            this
-    );
-}
-
-public Command servoIn() {
-    return new InstantCommand(
-            () -> linearActuator.set(200d / 370d), // 200d / 270d
-            this
-    );
-}
   
   @Override
   public void periodic() {

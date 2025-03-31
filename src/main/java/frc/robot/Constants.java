@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
@@ -151,9 +152,9 @@ public final class Constants {
         public static final String camera_Name_Front = "Camera_Battery_Side";
         // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
         public static final Transform3d April_Tag_Front_pos =
-            new Transform3d(new Translation3d(Units.inchesToMeters(11.5d), Units.inchesToMeters(-10.7d), Units.inchesToMeters(9.0d)), new Rotation3d(0d, Math.toRadians(-33d), 0/*Math.PI+3.125*/));
+            new Transform3d(new Translation3d(Units.inchesToMeters(-11.5d), Units.inchesToMeters(-10.7d), Units.inchesToMeters(9.0d)), new Rotation3d(Math.toRadians(-33d), 0, 0/*Math.PI+3.125*/));
         public static final Transform3d April_Tag_Back_pos =
-            new Transform3d(new Translation3d(Units.inchesToMeters(-11.5d), Units.inchesToMeters(10.7d), Units.inchesToMeters(8.3d)), new Rotation3d(0d, Math.toRadians(-33d), Math.toRadians(-178)/*3.125*/));
+            new Transform3d(new Translation3d(Units.inchesToMeters(-12.5d), Units.inchesToMeters(5.5d), Units.inchesToMeters(35.3d)), new Rotation3d(Math.toRadians(65d), 0, Math.toRadians(180)/*3.125*/));
         // The layout of the AprilTags on the field
         public static final AprilTagFieldLayout tagLayout =
                 AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
@@ -171,7 +172,7 @@ public final class Constants {
     public static final class PathPlannerConstants {
         public static final PPHolonomicDriveController driveController = new PPHolonomicDriveController(
                 new PIDConstants(5.0, 0.0, 0.0), // Translation PID
-                new PIDConstants(5.0, 0, 0) // Rotation PID
+                new PIDConstants(2.0, 0, 0) // Rotation PID
         );
 
         public static final RobotConfig robotConfig;
@@ -206,17 +207,18 @@ public final class Constants {
     //elevator constants 
     public static final int ELEVATOR_MOTOR_LEFT_ID = 10;
     public static final int ELEVATOR_MOTOR_RIGHT_ID = 11;
-    public static final double ELEVATOR_LOWER_LIMIT = 0.403809; //TODO: Placeholder
-    public static final double ELEVATOR_UPPER_LIMIT = 43.844727; //TODO: Placeholder 
-    public static final double ELEVATOR_MAX_ROTATIONS_PER_SEC = 100;
-
-    public static final double L4REEFPOSITION = 40.575195;
-    public static final double L3REEFPOSITION = 23.789551;
-    public static final double L2REEFPOSITION = 14.213379;
+    public static final double ELEVATOR_LOWER_LIMIT = 0.335449; //.403809; //TODO: Placeholder
+    //public static final double ELEVATOR_UPPER_LIMIT = 43; //TODO: Placeholder 
+    public static final double ELEVATOR_MAX_ROTATIONS_PER_SEC = 80;
+    public static final double ELEVATOR_CAN_TO_MOTOR_RATIO = 5.24954/0.916748;
+    public static final int ELEVATOR_CAN_CODER_ID = 4;
+    public static final double L4REEFPOSITION = 7.332764; //40.575195;
+    public static final double L3REEFPOSITION = 4.114502;
+    public static final double L2REEFPOSITION = 2.605713;
     public static final double L1REEFPOSITION = 2;
     public static final double DEEPCAGE = 999;
     public static final double PROCESSOR = 9;
-    public static final double CORALSTATION = 15; //-10.97
+    public static final double CORALSTATION = 0.898193; //-10.97
 
     //intake constants 
     public static final int INTAKE_MOTOR_ID = 8; 
@@ -227,9 +229,9 @@ public final class Constants {
     public static final double WRIST_LOWER_LIMIT = -4.093750;//18.414551
     public static final double WRIST_MAX_ROTATIONS_PER_SEC = 100;
     public static final double WIRST_MAX_VOLTAGE = 40;
-    public static final double WRIST_INTAKE_POSITION = 0.855957;//2.512207;
-    public static final double WRIST_L1_POSITION = -1;
-    public static final double WRIST_LMID_POSITION = 11.924316;
+    public static final double WRIST_INTAKE_POSITION = 2.067871;//2.512207;
+    public static final double WRIST_L1_POSITION = 4.617188;
+    public static final double WRIST_LMID_POSITION = 10.134766;
     public static final double WRIST_L4_POSITION = 14.634766;
     public static final double WIRST_BARGE_POSITION = -4.212402;
 }
