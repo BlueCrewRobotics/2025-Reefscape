@@ -3,9 +3,12 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -147,7 +150,7 @@ public class RobotContainer {
         // )));
 
         driver.rightTrigger().whileTrue(swerveSubsystem.halveRotationSpeed());
-            
+
         elevatorSubsystem.setDefaultCommand(elevatorSubsystem.run(()->elevatorSubsystem.driveByJoystick(auxDriver::getRightY)));
         wristSubsystem.setDefaultCommand(wristSubsystem.run(()->wristSubsystem.spinByJoystick(auxDriver::getLeftY)));
         
@@ -180,7 +183,19 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An ExampleCommand will run in autonomous
-        return autoChooser.getSelected();
+        return autoChooser.getSelected(); 
+        // Load the path we want to pathfind to and follow
+PathPlannerPath path = PathPlannerPath.fromPathFile("B Coarl Station R");
+
+// Create the constraints to use while pathfinding. The constraints defined in the path will only be used for the path.
+PathConstraints constraints = new PathConstraints(
+        3.0, 4.0,
+        Units.degreesToRadians(540), Units.degreesToRadians(720));
+
+// Since AutoBuilder is configured, we can use it to build pathfinding commands
+Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
+        path,
+        constraints);
         //return new PathPlannerAuto("New Auto");
 
         // Command[] autoCommands = new Command[numOfAutoActions.getSelected()*2];

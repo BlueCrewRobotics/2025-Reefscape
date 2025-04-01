@@ -208,7 +208,7 @@ public final class Constants {
     public static final int ELEVATOR_MOTOR_LEFT_ID = 10;
     public static final int ELEVATOR_MOTOR_RIGHT_ID = 11;
     public static final double ELEVATOR_LOWER_LIMIT = 0.335449; //.403809; //TODO: Placeholder
-    //public static final double ELEVATOR_UPPER_LIMIT = 43; //TODO: Placeholder 
+    public static final double ELEVATOR_UPPER_LIMIT = 43; //TODO: Placeholder
     public static final double ELEVATOR_MAX_ROTATIONS_PER_SEC = 80;
     public static final double ELEVATOR_CAN_TO_MOTOR_RATIO = 5.24954/0.916748;
     public static final int ELEVATOR_CAN_CODER_ID = 4;
