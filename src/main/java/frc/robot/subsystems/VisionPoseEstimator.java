@@ -47,8 +47,8 @@
  
  public final class VisionPoseEstimator {
  
-     private static final Matrix<N3, N1> multiTagStdDevs = Constants.PhotonVision.multiTagStdDevs;
-         private static final Object singleTagStdDevs = Constants.PhotonVision.singleTagStdDevs;
+     private static final Matrix<N3, N1> multiTagStdDevs = null;
+         private static final Object singleTagStdDevs = null;
               private final PhotonCamera camera1;
                private final PhotonCamera camera2;
                private PhotonCamera currentCamera;
@@ -164,7 +164,7 @@
                 */
                public Optional<EstimatedRobotPose> getEstimatedVisionGlobalPose() {
                    useBestCamera();
-                   var visionEst = currentPhotonEstimator.update(getLatestResult());
+                   var visionEst = currentPhotonEstimator.update(null);
                    double latestTimestamp = currentCamera.getLatestResult().getTimestampSeconds();
                 //    double latestTimestamp = currentCamera.getAllUnreadResults().get(currentCamera.getAllUnreadResults().size()-1).getTimestampSeconds();
                    boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
@@ -200,34 +200,34 @@
                 *
                 * @param estimatedPose The estimated pose to guess standard deviations for.
                 */
-                public Matrix<N3, N1> getVisionEstimationStdDevs(Pose2d estimatedPose) {
+               public Matrix<N3, N1> getVisionEstimationStdDevs(Pose2d estimatedPose) {
                    if (DriverStation.isDisabled()) {
                        return VecBuilder.fill(0.001d, 0.001d, 0.001d);
                    }
              
-                    Matrix<N3, N1> estStdDevs = (Matrix<N3, N1>) singleTagStdDevs;
-                    var targets = getLatestResult().getTargets();
-                    int numTags = 0;
-                    double avgDist = 0;
-                    for (var tgt : targets) {
-                        var tagPose = currentPhotonEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
-                        if (tagPose.isEmpty()) continue;
-                        numTags++;
-                        avgDist +=
-                                tagPose.get().toPose2d().getTranslation().getDistance(estimatedPose.getTranslation());
-                    }
-                    if (numTags == 0) return (Matrix<N3, N1>) estStdDevs;
-                    avgDist /= numTags;
-                            
-                    // Decrease std devs if multiple targets are visible
-                    if (numTags > 1) estStdDevs = multiTagStdDevs;
-                    // Increase std devs based on (average) distance
-                    if (numTags == 1 && avgDist > 4)
-                        estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
-                    else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
-            
-                    return (Matrix<N3, N1>) estStdDevs;
-                }
+                     var estStdDevs = singleTagStdDevs;
+              var targets = getLatestResult().getTargets();
+              int numTags = 0;
+              double avgDist = 0;
+              for (var tgt : targets) {
+                  var tagPose = currentPhotonEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
+                  if (tagPose.isEmpty()) continue;
+                  numTags++;
+                  avgDist +=
+                          tagPose.get().toPose2d().getTranslation().getDistance(estimatedPose.getTranslation());
+              }
+              if (numTags == 0) return (Matrix<N3, N1>) estStdDevs;
+              avgDist /= numTags;
+                     
+               // Decrease std devs if multiple targets are visible
+               if (numTags > 1) estStdDevs = multiTagStdDevs;
+         // Increase std devs based on (average) distance
+         if (numTags == 1 && avgDist > 4)
+             estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+         else estStdDevs = estStdDevs.equals(1 + (avgDist * avgDist / 30));
+ 
+         return (Matrix<N3, N1>) estStdDevs;
+     }
  
      /**
       * @return The {@link Pose2d} of the robot according to the {@link SwerveDrivePoseEstimator}
